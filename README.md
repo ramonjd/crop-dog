@@ -44,7 +44,10 @@ At least for me. Ratio and reverse scaling calculations need to be written and p
 
 ## Future iterations
 Implement granular rotation
+`npm install`
+`npm run webpack`
 
+New terminal window:
 `npm start`
 
 http://localhost:8888/src/index.html
