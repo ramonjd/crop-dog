@@ -1,0 +1,41 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Crop Dog</title>
+    <link rel="stylesheet" href="/src/styles.css" type="text/css" />
+  </head>
+  <body>
+
+      <main class="media-image-editor__container">
+          <p>Hold <code>Shift</code> to maintain aspect ratio</p>
+        <figure class="media-image-editor__canvas-container"></figure>
+
+        <nav class="media-image-editor__tool-bar">
+            <ul>
+                <li><button class="media-image-editor__tool-button media-image-editor__tool-button-reset">Reset</button></li>
+            </ul>
+        </nav>
+
+      </main>
+
+    <!-- DEBUG -->
+    <div class="media-image-editor_debug-container">
+        <h3>Cropped image preview</h3>
+        <figure class="media-image-editor_debug__preview-container">
+            <img />
+        </figure>
+        <div class="media-image-editor_debug-values">
+            <ul>
+                <li><var>Original image dimensions</var> <samp>TBD</samp></li>
+                <li><var>Cropped dimensions</var> <samp>TBD</samp></li>
+                <li><var>Cropped coordinates</var> <samp>TBD</samp></li>
+                <li><var>Rotation</var> <samp>TBD</samp></li>
+                <li><var>Ratio to original image</var> <samp>TBD</samp></li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="/build/main.bundle.js" type="application/javascript"></script>
+
+  </body>
+</html> 

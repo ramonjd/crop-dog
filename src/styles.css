@@ -1,0 +1,240 @@
+* {
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+body {
+    margin: 20px;
+    padding: 20px;
+    background: #ccc;
+}
+
+li {
+    list-style: none;
+    margin: 0 0 10px 0;
+}
+
+/* IMAGE EDITOR */
+
+.image-editor__canvas-container {
+    overflow: hidden;
+    position:relative;
+    min-width: 600px;
+    min-height: 400px;
+    display: block;
+    z-index: 0;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+
+.image-editor__canvas-container-loading {
+    animation-name: pulse_animation;
+    animation-duration: 2000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.image-editor__canvas-container-loading .image-editor__crop-container {
+    visibility: hidden;
+}
+
+.image-editor__canvas-container canvas {
+    width: 600px;
+    height: 400px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    visibility: visible;
+    display: block;
+    z-index: 10;
+    pointer-events: none;
+}
+
+
+.image-editor__canvas-container img {
+    padding: 0;
+    margin: 0;
+    user-select: none;
+    z-index: -1;
+    opacity: 0.2;
+    position: absolute;
+    display: block;
+    transform: translate(0px, 0px);
+    transform-origin: 0 0;
+}
+
+.image-editor__crop-container  {
+    border: 2px solid rgba(255, 255, 255, .7);
+    padding: 0;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    height: 250px; /* give it some initial dimensions */
+    width: 500px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    overflow: hidden;
+    visibility: visible;
+}
+
+.image-editor__crop-container:active {
+    cursor: move;
+    background: rgba(204,204,204,0.251);
+}
+
+
+.image-editor__crop-container:active .image-editor__guide,
+.image-editor__crop-container:active:after,
+.image-editor__crop-container:active:before {
+    position: absolute;
+    padding: 0;
+    width: 1px;
+    height: 100%;
+    overflow: hidden;
+    left: 33%;
+    content: ' ';
+    background: rgba(255, 255, 255, .33);
+    z-index: 1000;
+    display: block;
+}
+
+.image-editor__crop-container:active:before {
+    right: 33%;
+    left: auto;
+}
+
+.image-editor__crop-container:active .image-editor__guide-horiz-top {
+    left: auto;
+    width: 100%;
+    height: 1px;
+    top: 33%;
+}
+
+.image-editor__crop-container:active .image-editor__guide-horiz-bottom {
+    left: auto;
+    width: 100%;
+    height: 1px;
+    bottom: 33%;
+    top: auto;
+}
+
+.image-editor__crop-container:active canvas {
+    visibility: hidden;
+}
+
+.image-editor__crop-container:active ~ img {
+    opacity: .8;
+}
+
+.image-editor__image-layer {
+    pointer-events: none;
+}
+
+.image-editor__draggable-corner {
+    position: absolute;
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: #222;
+    z-index: 999;
+    border: 1px solid white;
+    transform: translate(0px, 0px);
+    transform-origin: 0 0;
+}
+
+.image-editor__draggable-corner:active {
+    background: rgba(255, 255, 255, .5);
+}
+
+.image-editor__draggable-corner-nw {
+    top: -10px;
+    left: -10px;
+    cursor: nw-resize;
+}
+
+.image-editor__draggable-corner-sw {
+    bottom: -10px;
+    left: -10px;
+    cursor: sw-resize;
+}
+
+.image-editor__draggable-corner-ne {
+    top: -10px;
+    right: -10px;
+    cursor: ne-resize;
+}
+
+.image-editor__draggable-corner-se {
+    bottom: -10px;
+    right: -10px;
+    cursor: se-resize;
+}
+
+
+/* ELEMENTS EXTERNAL TO THE IMAGE EDITING TOOL */
+.media-image-editor__container,
+.media-image-editor__canvas-container,
+.media-image-editor__tool-bar {
+    display: flex;
+    flex-direction: column;
+}
+
+.media-image-editor__tool-bar,
+.media-image-editor__container {
+    margin: 0 auto;
+    width: 80%;
+}
+
+.media-image-editor__tool-bar {
+    display: flex;
+    flex-direction: row;
+}
+
+.media-image-editor__tool-bar .media-image-editor__tool-button {
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.media-image-editor__tool-button {
+    background-color: #88ABC2;
+    padding: 10px;
+    display: inline-block;
+    color: #49708A;
+    cursor: pointer;
+    margin: 20px;
+    font-size: 1.5rem;
+}
+
+/* ANIMATIONS */
+
+@keyframes pulse_animation {
+    0% { opacity: 1; }
+    25% { opacity: .25; }
+    50% { opacity: .5; }
+    75% { opacity: .75; }
+    100% { opacity: 1; }
+}
+
+/* DEBUG */
+
+.media-image-editor_debug-container {
+    width: 400px;
+    clear: both;
+    margin: 50px auto;
+    border: 8px solid rgba(0, 0, 0, .5);
+    padding: 20px;
+}
+
+.media-image-editor_debug__preview-container {
+    display: block;
+}
+
+.media-image-editor_debug__preview-container img {
+    width: 100%;
+    margin: 10px 0;
+}
