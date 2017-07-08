@@ -24,12 +24,27 @@ function transformCSS( element, translateX = 0, translateY = 0, scale = 0, rotat
 
 }
 
+
+function getScaledBounds () {
+
+    // const top = containerHeight / 2 - ( ratio * imageHeight ) / 2;
+    // const left = containerWidth / 2 - ( ratio * imageWidth ) / 2;
+    // const bottom = top + ratio * imageHeight;
+    // const right = left + ratio * imageWidth;
+    // return {
+    //     top,
+    //     right,
+    //     bottom,
+    //     left
+    // };
+
+}
+
 function getAspectRatio( width, height ) {
     return width / height;
 }
 
 function floorDimensions( element ) {
-
     element.width = Math.floor( element.width );
     element.height = Math.floor( element.height );
     return element;
@@ -37,7 +52,6 @@ function floorDimensions( element ) {
 
 
 function roundDimensions( element ) {
-
     element.width = Math.round( element.width );
     element.height = Math.round( element.height );
     return element;
@@ -65,6 +79,24 @@ function scaleToAspectRatio( parentElementWidth, parentElementHeight, childEleme
     return ratio;
 }
 
+function regExp( name ) {
+    return new RegExp( `(^| )${name}( |$)` );
+}
+
+function hasClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype )  ) {
+        return regExp( name ).test( this.element.className );
+    }
+    return element.classList.remove( className );
+}
+
+function removeClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype ) ) {
+        return element.className =  element.className.replace( regExp( name ), '' );
+    }
+    return element.classList.remove( className );
+}
+
 export default class ImageEditor {
 
     constructor( props, container ) {
@@ -72,13 +104,13 @@ export default class ImageEditor {
         // cache of computed image properties
         this.image = {
             transform: {
-                scaleRatio: 0,
+                ratio: 0,
                 translateX: 0,
                 translateY: 0,
-                rotate: 0
-            },
-            width: 0,
-            height: 0
+                rotate: 0,
+                width: 0,
+                height: 0
+            }
         };
 
         // cache of computed this.imageEditorContainer properties
@@ -131,14 +163,16 @@ export default class ImageEditor {
         this.cropAreaContainer = createElement( {
             tagName: 'div',
             className: `${NAMESPACE}__crop-container`,
-            'aria-label': 'Cropping area'
+            'aria-label': 'Cropping area',
+            children : [ this.canvas ]
+
         } );
 
         // this is the workspace wrapper
         this.imageEditorWorkspace = createElement( {
             tagName: 'div',
             className: `${NAMESPACE}__workspace`,
-            children : [ this.cropAreaContainer, this.imageObj, this.canvas ]
+            children : [ this.cropAreaContainer, this.imageObj ]
         } );
 
         // this is the main container
@@ -162,84 +196,92 @@ export default class ImageEditor {
 
     onImageLoaded() {
 
+        // initial update of coordinates
+        this.updateWorkspace();
+
         // capture window resize event streams
         // this will be request animation frame
         if ( typeof window !== 'undefined' ) {
             throttle( 'resize', 'throttledResize' );
             window.addEventListener( 'throttledResize', this.updateWorkspace );
-
         }
 
-        // initial update of coordinates
-        this.updateWorkspace();
-        this.drawImage();
-
         // finally, we show the workspace
-        this.imageEditorContainer.classList.remove( `${NAMESPACE}__container-loading` );
+        // place it on the end of the stack to ensure the update takes place first
+        setTimeout( () => {
+            removeClass( this.imageEditorContainer, `${NAMESPACE}__container-loading` );
+        } );
 
     }
 
     updateWorkspace() {
 
+        // cache the container offset width
         this.outerContainer.width = this.imageEditorWorkspace.offsetWidth;
         this.outerContainer.height = this.imageEditorWorkspace.offsetHeight;
 
-        this.canvas.width = this.outerContainer.width;
-        this.canvas.height = this.outerContainer.height;
-
+        // get aspect ratio
         const scaleRatio = calculateAspectRatioFit(
-            this.imageObj.width,
-            this.imageObj.height,
+            this.imageObj.naturalWidth,
+            this.imageObj.naturalHeight,
             this.outerContainer.width,
             this.outerContainer.height,
             EDITOR_GUTTER );
 
         const outerContainerCenterX = ( this.outerContainer.width / 2 );
         const outerContainerCenterY = ( this.outerContainer.height / 2 );
-        const translateX = ( ( outerContainerCenterX - this.imageObj.width ) + ( this.imageObj.width / 2 ) );
-        const translateY = ( ( outerContainerCenterY - this.imageObj.height ) + ( this.imageObj.height / 2 ) );
+        const translateX = Math.floor( ( ( outerContainerCenterX - scaleRatio.width ) + ( scaleRatio.width / 2 ) ) );
+        const translateY = Math.floor( ( ( outerContainerCenterY - scaleRatio.height ) + ( scaleRatio.height / 2 ) ) );
         const rotate = 0;
 
-        transformCSS( this.imageObj, translateX, translateY, scaleRatio.ratio, 0 );
+        this.cropAreaContainer.style.width = `${scaleRatio.width}px`;
+        this.cropAreaContainer.style.height = `${scaleRatio.height}px`;
+        this.imageObj.width = scaleRatio.width;
+        this.imageObj.height = scaleRatio.height;
 
-        // save tranvalues
+        transformCSS( this.imageObj, translateX, translateY, 1, 0 );
+        transformCSS( this.cropAreaContainer, translateX, translateY, 1 );
+
+        // save translate values
         this.image.transform = {
             translateX,
             translateY,
-            scaleRatio,
-            rotate
+            rotate,
+            ...scaleRatio
         };
+
+        this.cropBounds = this.cropAreaContainer.getBoundingClientRect();
+
+        this.drawImage();
 
     }
 
 
     drawImage() {
+
         const context = this.canvas.getContext('2d');
+
+        // set size of canvas
+        this.canvas.width = this.cropBounds.width;
+        this.canvas.height = this.cropBounds.height;
+
         context.clearRect( 0, 0, this.canvas.width, this.canvas.height );
         context.save();
 
-        // context.setTransform( 1, 0, 0, 1, 0, 0 );
-        //context.scale( 1, 1 );
+        const sourceWidth = this.image.transform.ratio <= 1 ?  this.cropBounds.width / this.image.transform.ratio : this.image.transform.width;
+        const sourceHeight = this.image.transform.ratio <= 1  ? this.cropBounds.height / this.image.transform.ratio : this.image.transform.height;
+        const destWidth = this.image.transform.ratio <= 1 ? this.cropBounds.width : this.cropBounds.width * this.image.transform.ratio;
+        const destHeight = this.image.transform.ratio <= 1  ? this.cropBounds.height : this.cropBounds.height * this.image.transform.ratio;
 
-
-
-
-
-        // this.sourceX = this.cropAreaContainer.offsetLeft;
-        // this.sourceY = this.cropAreaContainer.offsetTop;
-        // this.sourceWidth = this.cropAreaContainer.offsetWidth;
-        // this.sourceHeight = this.cropAreaContainer.offsetHeight;
         this.sourceX = 0;
         this.sourceY = 0;
-        this.sourceWidth = 500;
-        this.sourceHeight = 300;
+        this.sourceWidth = Math.floor( sourceWidth );
+        this.sourceHeight = Math.floor( sourceHeight );
 
         this.destX = 0;
         this.destY =  0;
-        // this.destWidth =  this.cropAreaContainer.offsetWidth;
-        // this.destHeight = this.cropAreaContainer.offsetHeight;
-        this.destWidth =  100;
-        this.destHeight = 200;
+        this.destWidth = Math.floor( destWidth );
+        this.destHeight = Math.floor( destHeight );
 
 
         context.drawImage(
@@ -253,7 +295,7 @@ export default class ImageEditor {
             // w and h of the image in the destination canvas. Changing these values scales the sub-rectangle in the destination context.
             this.destWidth, this.destHeight );
 
-
+        context.restore();
     }
 
     reset() { }

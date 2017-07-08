@@ -42,36 +42,52 @@ li {
 }
 
 .image-editor__container-loading {
-    animation-name: pulse_animation;
-    animation-duration: 2000ms;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+    background: white;
 }
 
-.image-editor__container-loading .image-editor__crop-container {
+.image-editor__container-loading .image-editor__workspace {
     visibility: hidden;
-    transform: translate(-50%, -50%);
 }
 
-.image-editor__container .image-editor__canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
+.image-editor__canvas {
+    display: block;
 }
 
-.image-editor__container .image-editor__image-layer {
+.image-editor__image-layer {
     opacity: .5;
     pointer-events: none;
     position: absolute;
     z-index: -1;
     transition: transform .1s linear;
-    transform-origin: 50% 50%;
+    transform-origin: 50% 50%; /* this is the default */
+}
+
+.image-editor__container-loading .image-editor__image-layer {
+    transition: none;
 }
 
 .image-editor__crop-container  {
-
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    cursor: pointer;
+    display: flex;
+    outline: none;
+    transition: transform .1s linear;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
+.image-editor__crop-container:active {
+    cursor: move;
+    background: rgba(204,204,204,0.251);
+    opacity: 0.3;
+}
+
+.image-editor__container-loading .image-editor__crop-container {
+    transition: none;
+}
 
 /* ANIMATIONS */
 
@@ -82,7 +98,6 @@ li {
     75% { opacity: .75; }
     100% { opacity: 1; }
 }
-
 
 /* APP STYLES */
 

@@ -182,7 +182,7 @@ export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeigh
 
     return {
         ratio,
-        width: srcWidth * ratio,
-        height: srcHeight * ratio
+        width: Math.floor( srcWidth * ratio ),
+        height: Math.floor( srcHeight * ratio )
     };
 }
