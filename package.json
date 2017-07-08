@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/ramonjd/crop-dog#readme",
   "dependencies": {
-    "jquery": "^3.2.1"
+    "jquery": "^3.2.1",
+    "transformatrix": "^1.1.1"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",
