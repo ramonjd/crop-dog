@@ -64,7 +64,8 @@ li {
     pointer-events: none;
     position: absolute;
     z-index: -1;
-    transition: all .15s ease-in-out;
+    transition: transform .1s linear;
+    transform-origin: 50% 50%;
 }
 
 .image-editor__crop-container  {

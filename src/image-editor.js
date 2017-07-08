@@ -2,12 +2,11 @@ import {
     noop,
     throttle,
     createElement,
-    getOffsetRelativeToParent,
-    getCenterPositionRelativeToParent,
-    getMousePosition } from './utils';
+    calculateAspectRatioFit } from './utils';
 
 const NAMESPACE = 'image-editor';
 const IMAGE_ALT_TEXT = 'Image being edited';
+const EDITOR_GUTTER = 0.85;
 
 // animationframe
 // drawImage while resizing crop area
@@ -19,12 +18,52 @@ const IMAGE_ALT_TEXT = 'Image being edited';
 
 function transformCSS( element, translateX = 0, translateY = 0, scale = 0, rotateRad = 0 ) {
 
-    element.style.transform = `translate(${ translateX }px, ${ translateY }px) scale(${ scale }) rotate(${ rotateRad }rad) translateZ(0px)`;
+    element.style.transform = `translate( ${ translateX }px, ${ translateY }px ) scale( ${ scale } ) rotate( ${ rotateRad }rad ) translateZ( 0px )`;
 
     return element;
 
 }
 
+function getAspectRatio( width, height ) {
+    return width / height;
+}
+
+function floorDimensions( element ) {
+
+    element.width = Math.floor( element.width );
+    element.height = Math.floor( element.height );
+    return element;
+}
+
+
+function roundDimensions( element ) {
+
+    element.width = Math.round( element.width );
+    element.height = Math.round( element.height );
+    return element;
+}
+
+function scaleDimensions( element, scaleX, scaleY, rotated = false ) {
+    const newScaleY = ( rotated === true ) ? scaleY : scaleX;
+    element.width = element.width * scaleX;
+    element.height = element.height * newScaleY;
+    return element;
+}
+
+
+function calculateZoom () {
+    // scalechange = newscale - oldscale;
+    // offsetX = -(zoomPointX * scalechange);
+    // offsetY = -(zoomPointY * scalechange);
+}
+
+function scaleToAspectRatio( parentElementWidth, parentElementHeight, childElementWidth, childElementHeight ) {
+    const parentAspectRatio = getAspectRatio( parentElementWidth, parentElementHeight );
+    const childAspectRatio = getAspectRatio( childElementWidth, childElementHeight );
+    const ratio = ( parentAspectRatio > childAspectRatio ) ?
+        ( childElementWidth / parentElementWidth ) : ( childElementHeight / parentElementHeight );
+    return ratio;
+}
 
 export default class ImageEditor {
 
@@ -123,16 +162,17 @@ export default class ImageEditor {
 
     onImageLoaded() {
 
-        // initial update of coordinates
-        this.updateWorkspace();
-        this.drawImage();
-
-
         // capture window resize event streams
         // this will be request animation frame
         if ( typeof window !== 'undefined' ) {
-            window.addEventListener( 'resize', throttle( this.updateWorkspace, 333 ) );
+            throttle( 'resize', 'throttledResize' );
+            window.addEventListener( 'throttledResize', this.updateWorkspace );
+
         }
+
+        // initial update of coordinates
+        this.updateWorkspace();
+        this.drawImage();
 
         // finally, we show the workspace
         this.imageEditorContainer.classList.remove( `${NAMESPACE}__container-loading` );
@@ -144,49 +184,42 @@ export default class ImageEditor {
         this.outerContainer.width = this.imageEditorWorkspace.offsetWidth;
         this.outerContainer.height = this.imageEditorWorkspace.offsetHeight;
 
-        this.canvas.width = this.editor.rotated ? this.outerContainer.height : this.outerContainer.width;
-        this.canvas.height = this.editor.rotated ? this.outerContainer.width : this.outerContainer.height;
+        this.canvas.width = this.outerContainer.width;
+        this.canvas.height = this.outerContainer.height;
 
-
-        let scaleRatio = Math.min(
-            this.outerContainer.width / this.imageObj.width,
-            this.outerContainer.height / this.imageObj.height
-        );
-
-
-
-        // this.imageObj.width = this.imageObj.width * scaleRatio;
-        // this.imageObj.height = this.imageObj.height * scaleRatio;
+        const scaleRatio = calculateAspectRatioFit(
+            this.imageObj.width,
+            this.imageObj.height,
+            this.outerContainer.width,
+            this.outerContainer.height,
+            EDITOR_GUTTER );
 
         const outerContainerCenterX = ( this.outerContainer.width / 2 );
         const outerContainerCenterY = ( this.outerContainer.height / 2 );
-        let newTranslateX = ( outerContainerCenterX);
-        let newTranslateY = ( outerContainerCenterY - ((this.imageObj.height * scaleRatio) /2));
+        const translateX = ( ( outerContainerCenterX - this.imageObj.width ) + ( this.imageObj.width / 2 ) );
+        const translateY = ( ( outerContainerCenterY - this.imageObj.height ) + ( this.imageObj.height / 2 ) );
+        const rotate = 0;
 
-        console.log( 'onWindowResize newTranslateY', newTranslateY  );
+        transformCSS( this.imageObj, translateX, translateY, scaleRatio.ratio, 0 );
 
-        transformCSS( this.imageObj, 0, newTranslateY, scaleRatio, 0 );
-
-        // save values
-        this.image.transform.translateX = newTranslateX;
-        this.image.transform.translateY = newTranslateY;
-        this.image.transform.scaleRatio = scaleRatio;
-
-
-
+        // save tranvalues
+        this.image.transform = {
+            translateX,
+            translateY,
+            scaleRatio,
+            rotate
+        };
 
     }
 
 
     drawImage() {
-
-
         const context = this.canvas.getContext('2d');
         context.clearRect( 0, 0, this.canvas.width, this.canvas.height );
         context.save();
 
         // context.setTransform( 1, 0, 0, 1, 0, 0 );
-        // context.scale( 1, 1 );
+        //context.scale( 1, 1 );
 
 
 

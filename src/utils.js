@@ -8,35 +8,19 @@ export function noop() {
 
 /**
  * Throttle a func call every {threshhold}ms
- * @param {Function} fn - function to throttle
- * @param {Number} threshhold - in milliseconds
- * @param {Object} scope - context
- * @returns {Function}
+ * https://developer.mozilla.org/en-US/docs/Web/Events/resize
  */
-export function throttle( fn, threshhold = 250, scope ) {
-    let last;
-    let deferTimer;
-
-    return function () {
-
-        const context = scope || this;
-        let now = new Date().getTime();
-        let args = arguments;
-
-        if ( last && now < ( last + threshhold ) ) {
-            // hold on to it
-            clearTimeout(deferTimer);
-
-            deferTimer = setTimeout( function () {
-                last = now;
-                fn.apply( context, args );
-            }, threshhold + last - now);
-
-        } else {
-            last = now;
-            fn.apply( context, args );
-        }
+export function throttle( type, name, obj = window ) {
+    let running = false;
+    const func = function() {
+        if (running) { return; }
+        running = true;
+        requestAnimationFrame(function throttledRequestAnimationFrame() {
+            obj.dispatchEvent( new CustomEvent( name ) );
+            running = false;
+        });
     };
+    obj.addEventListener(type, func);
 }
 
 /**
@@ -178,5 +162,27 @@ export function getMousePosition( event, contextElement = null ) {
     return {
         x,
         y
+    };
+}
+
+/**
+ * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
+ * images to fit into a certain area.
+ *
+ * @param {Number} srcWidth Source area width
+ * @param {Number} srcHeight Source area height
+ * @param {Number} maxWidth Fittable area maximum available width
+ * @param {Number} maxHeight Fittable area maximum available height
+ * @param {Number} gutter - Optional percentage to increase or decrease the new fit dimensions
+ * @return {Object} { width, heigth }
+ */
+export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeight, gutter = 1 ) {
+
+    const ratio = Math.min( maxWidth / srcWidth, maxHeight / srcHeight ) * gutter;
+
+    return {
+        ratio,
+        width: srcWidth * ratio,
+        height: srcHeight * ratio
     };
 }
