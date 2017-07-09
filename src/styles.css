@@ -51,6 +51,7 @@ li {
 
 .image-editor__canvas {
     display: block;
+    visibility: hidden;
 }
 
 .image-editor__image-layer {
@@ -76,7 +77,9 @@ li {
     outline: none;
     transition: transform .1s linear;
     overflow: hidden;
-    box-sizing: border-box;
+    border: 1px solid black;
+    /* to offset the 1px border */
+    margin: -1px;
 }
 
 .image-editor__crop-container:active {
@@ -109,14 +112,32 @@ li {
 }
 
 /* DEBUG */
-
-.media-image-editor_debug__preview-container {
+.media-image-editor_debug-container {
+    display: block;
+    background: red;
     position: fixed;
     bottom: 0;
     right: 0;
-    width: 400px;
+    z-index: 500;
+    padding: 0;
+    box-sizing: border-box;
+    border: 10px solid rgba( 255, 255, 255, 0.5 );
+    width: 200px;
+
 }
+.media-image-editor_debug-values {
+    color: white;
+    font-size: .8em;
+    padding: 10px;
+}
+
+.media-image-editor_debug__preview-container {
+    display: block;
+}
+
 .media-image-editor_debug__preview-container img {
+    display: block;
     width: 100%;
-    margin: 10px 0;
+    height: 100%;
+
 }

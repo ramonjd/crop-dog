@@ -165,24 +165,35 @@ export function getMousePosition( event, contextElement = null ) {
     };
 }
 
+
 /**
  * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
  * images to fit into a certain area.
+ * At the moment we expect rotations of only 90 degrees.
+ * This could be improved by always checking if the bounding box of a rotated rectangle fits within the scaled container
  *
  * @param {Number} srcWidth Source area width
  * @param {Number} srcHeight Source area height
  * @param {Number} maxWidth Fittable area maximum available width
  * @param {Number} maxHeight Fittable area maximum available height
+ * @param {Boolean} rotated
  * @param {Number} gutter - Optional percentage to increase or decrease the new fit dimensions
  * @return {Object} { width, heigth }
  */
-export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeight, gutter = 1 ) {
+export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeight, rotated = false, gutter = 1 ) {
 
-    const ratio = Math.min( maxWidth / srcWidth, maxHeight / srcHeight ) * gutter;
+    const aspectRatio = rotated ? Math.min( maxHeight / srcWidth, maxWidth / srcHeight ) : Math.min( maxWidth / srcWidth, maxHeight / srcHeight );
+
+    // reduce ratio to gutter percentage amount
+    const ratio = aspectRatio * gutter;
+
+    // widths with ratio applied
+    const width = Math.floor( srcWidth * ratio ) ;
+    const height = Math.floor( srcHeight * ratio ) ;
 
     return {
         ratio,
-        width: Math.floor( srcWidth * ratio ),
-        height: Math.floor( srcHeight * ratio )
+        width,
+        height
     };
 }
