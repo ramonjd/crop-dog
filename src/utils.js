@@ -197,3 +197,36 @@ export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeigh
         height
     };
 }
+
+export function transformCSS( element, translateX = 0, translateY = 0, scale = 0, radians = 0 ) {
+    element.style.transform = `translate( ${ translateX }px, ${ translateY }px ) scale( ${ scale } ) rotate( ${ radians }rad ) translateZ( 0px )`;
+    return element;
+}
+
+// Converts from degrees to radians.
+export function getRadianFromDegrees( degrees ) {
+    return degrees * Math.PI / 180;
+}
+
+// Converts from radians to degrees.
+export function getDegreesFromRadians( radians ) {
+    return radians * 180 / Math.PI;
+}
+
+export function regExp( name ) {
+    return new RegExp( `(^| )${name}( |$)` );
+}
+
+export function hasClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype )  ) {
+        return regExp( name ).test( this.element.className );
+    }
+    return element.classList.contains( className );
+}
+
+export function removeClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype ) ) {
+        return element.className =  element.className.replace( regExp( name ), '' );
+    }
+    return element.classList.remove( className );
+}
