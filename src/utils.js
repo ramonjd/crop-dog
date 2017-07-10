@@ -9,6 +9,12 @@ export function noop() {
 /**
  * Throttle a func call every {threshhold}ms
  * https://developer.mozilla.org/en-US/docs/Web/Events/resize
+ * Usage:
+    throttle("resize", "optimizedResize");
+    // handle event
+    window.addEventListener("optimizedResize", function() {
+        console.log("Resource conscious resize callback!");
+    });
  */
 export function throttle( type, name, obj = window ) {
     let running = false;

@@ -14,6 +14,12 @@ const IMAGE_ALT_TEXT = 'Image being edited';
 const EDITOR_GUTTER = 0.85;
 const DEBUG = true;
 
+
+/*
+*
+*
+* */
+
 // animationframe
 // drawImage while resizing crop area
 // https://stackoverflow.com/questions/6198771/drawing-image-in-canvas-at-an-angle-without-rotating-the-canvas
