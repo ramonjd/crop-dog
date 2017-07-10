@@ -39,6 +39,7 @@ export default class ImageEditor {
                 height: 0
             },
             // this will contain the last offset position of the image
+            // calculated from traslated origin
             position: {
                 left: 0,
                 top: 0
@@ -46,21 +47,32 @@ export default class ImageEditor {
             rotated: false
         };
 
-        this.cropBounds = {
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0
-        };
-
-        this.crop = {
+        // the crop tool
+        this.croppingArea = {
+            // maximum dimensions of the crop tool
+            // rectangle cannot be bigger than these values
+            // update with viewport size * aspect ratio
+            maxDimensions: {
+                width: 0,
+                height: 0
+            },
+            // current position of the crop rectangle  
+            position: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            },
+            // ui-related transformations
+            // not directly related to style.transform
+            // but any changes to the rectangle shape
             transform: {
                 translateX: 0,
                 translateY: 0,
                 degrees: 0,
                 width: 0,
                 height: 0
-            }
+            }       
         };
 
         // cache of computed this.imageEditorContainer properties
@@ -105,10 +117,24 @@ export default class ImageEditor {
         this.imageObjClone = this.imageObj.cloneNode(true);
 
 
-        // this is the working space
-        this.canvas = createElement( {
+        // this is the canvas that we display to the UI 
+        // its purpose is to present a preview of the crop area
+        // it will be cropped, rotated and resized in line with the cropping area's state
+        // mostly by CSS
+        // it does no canvas resizing, rotating and translation relative to the sourceImage (i.e., the final export)
+        // which is done by the offPage workspace
+        this.canvasUI = createElement( {
             tagName: 'canvas',
-            className: `${NAMESPACE}__canvas`
+            className: `${NAMESPACE}__canvas-ui`
+        } );
+
+       // this is the offPage workspace
+       // it takes the output of this.canvasUIUI, and calculates the positions and ratios required to create output image
+       // https://www.html5rocks.com/en/tutorials/canvas/performance/#toc-pre-render
+       // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas 
+        this.canvasWorkspace = createElement( {
+            tagName: 'canvas',
+            className: `${NAMESPACE}__canvas-workspace`
         } );
 
         // this is the cropping tool
@@ -142,7 +168,7 @@ export default class ImageEditor {
                     tagName: 'span',
                     className: `image-editor__guide ${NAMESPACE}__guide-horiz-bottom`
                 },
-                this.canvas ]
+                this.canvasUI ]
 
         } );
 
@@ -198,6 +224,9 @@ export default class ImageEditor {
         // this will be request animation frame
         if ( typeof window !== 'undefined' ) {
             window.addEventListener( 'resize', this.onWindowResize );
+
+            // temp debounce
+            // we'll draw to the hidden workspace image when needed
             this.drawImage = debounce( this.drawImage, 250 );
         }
 
@@ -363,6 +392,15 @@ export default class ImageEditor {
             this.image.rotated,
             EDITOR_GUTTER );
 
+        this.croppingArea.maxDimensions = {
+            width: scaleRatio.width,
+            height: scaleRatio.height
+        };
+
+        this.croppingArea.position = {
+
+        };
+
 
         const outerContainerCenterX = ( this.outerContainer.width / 2 );
         const outerContainerCenterY = ( this.outerContainer.height / 2 );
@@ -384,7 +422,7 @@ export default class ImageEditor {
             ...scaleRatio
         } );
 
-        this.crop.transform = Object.assign( {}, this.crop.transform, {
+        this.croppingArea.transform = Object.assign( {}, this.croppingArea.transform, {
             translateX,
             translateY,
             ...scaleRatio
@@ -397,27 +435,27 @@ export default class ImageEditor {
 
     drawImage() {
 
-        const context = this.canvas.getContext('2d');
+        const context = this.canvasUI.getContext('2d');
         const rotated = this.image.rotated;
 
-        //const cropBounds = this.cropBounds;
+        //const cropBounds = this.croppingArea.position;
         // this will cause a redraw, so the next plan is to calc the coords via math then cache
         // well, that's the plan
-        this.cropBounds = this.cropAreaContainer.getBoundingClientRect();
-        console.log('this.cropBounds', this.cropBounds);
+        this.croppingArea.position = this.cropAreaContainer.getBoundingClientRect();
+        console.log('this.croppingArea.position', this.croppingArea.position);
 
         // set size of canvas
         // for now we're just flipping by 90deg
-        const scaledCropWidth = Math.floor( ( this.cropBounds.width / this.image.transform.ratio  ) - 1 );
-        const scaledCropHeight = Math.floor( ( this.cropBounds.height / this.image.transform.ratio  ) - 1 );
-        this.canvas.width = scaledCropWidth;
-        this.canvas.height =  scaledCropHeight;
+        const scaledCropWidth = Math.floor( ( this.croppingArea.position.width / this.image.transform.ratio  ) - 1 );
+        const scaledCropHeight = Math.floor( ( this.croppingArea.position.height / this.image.transform.ratio  ) - 1 );
+        this.canvasUI.width = scaledCropWidth;
+        this.canvasUI.height =  scaledCropHeight;
 
-        context.clearRect( 0, 0, this.canvas.width, this.canvas.height );
+        context.clearRect( 0, 0, scaledCropWidth, scaledCropHeight );
 
         if ( rotated ) {
             // origin of the canvas rotate is the middle
-            context.translate( this.canvas.width / 2, this.canvas.height / 2 );
+            context.translate( scaledCropWidth / 2, scaledCropHeight / 2 );
             context.rotate( this.image.transform.radians );
         }
 
@@ -425,8 +463,8 @@ export default class ImageEditor {
 
         // because of the 1px border
         // TODO: make a CONSTANT out of this
-        const sourceX = this.crop.transform.translateX - this.crop.transform.translateX - 1;
-        const sourceY = this.crop.transform.translateY - this.crop.transform.translateY - 1;
+        const sourceX = this.croppingArea.transform.translateX - this.croppingArea.transform.translateX - 1;
+        const sourceY = this.croppingArea.transform.translateY - this.croppingArea.transform.translateY - 1;
 
         const sourceWidth = this.imageObj.naturalWidth;
         const sourceHeight = this.imageObj.naturalHeight;
@@ -454,7 +492,7 @@ export default class ImageEditor {
         context.restore();
 
         this.onWorkSpaceUpdated( {
-            canvas: this.canvas,
+            canvas: this.canvasUI,
             original: {
                 width: this.imageObj.naturalWidth,
                 height: this.imageObj.naturalHeight
