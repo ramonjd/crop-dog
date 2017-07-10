@@ -49,7 +49,12 @@ li {
     visibility: hidden;
 }
 
-.image-editor__canvas {
+.image-editor__canvas-ui {
+    display: block;
+    visibility: hidden;
+}
+
+.image-editor__canvas-workspace {
     display: block;
     visibility: hidden;
 }
