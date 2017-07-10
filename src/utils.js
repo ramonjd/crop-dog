@@ -204,6 +204,18 @@ export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeigh
     };
 }
 
+export function calculateOriginalDimensionsFromScaled( scaledWidth, scaledHeight, ratio ) {
+
+    // widths with ratio applied
+    const width = Math.floor( scaledWidth / ratio ) ;
+    const height = Math.floor( scaledHeight / ratio ) ;
+
+    return {
+        width,
+        height
+    };
+}
+
 export function transformCSS( element, translateX = 0, translateY = 0, scale = 0, radians = 0 ) {
     element.style.transform = `translate( ${ translateX }px, ${ translateY }px ) scale( ${ scale } ) rotate( ${ radians }rad ) translateZ( 0px )`;
     return element;

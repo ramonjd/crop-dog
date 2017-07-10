@@ -4,7 +4,6 @@ import {
     createElement,
     calculateAspectRatioFit,
     getRadianFromDegrees,
-    transformCSS,
     hasClass,
     removeClass,
     getMousePosition } from './utils';
@@ -15,10 +14,45 @@ const EDITOR_GUTTER = 0.85;
 const DEBUG = true;
 
 
-/*
-*
-*
-* */
+//https://stackoverflow.com/questions/34597160/html-canvas-mouse-position-after-scale-and-translate
+var matrix = [1,0,0,1,0,0];
+var invMatrix = [1,0,0,1];
+function createMatrix(x, y, scale, rotate){
+    var m = matrix; // just to make it easier to type and read
+    var im = invMatrix; // just to make it easier to type and read
+
+    // create the rotation and scale parts of the matrix
+    m[3] =   m[0] = Math.cos(rotate) * scale;
+    m[2] = -(m[1] = Math.sin(rotate) * scale);
+
+    // add the translation
+    m[4] = x;
+    m[5] = y;
+
+    // calculate the inverse transformation
+
+    // first get the cross product of x axis and y axis
+    var cross = m[0] * m[3] - m[1] * m[2];
+
+    // now get the inverted axis
+    im[0] =  m[3] / cross;
+    im[1] = -m[1] / cross;
+    im[2] = -m[2] / cross;
+    im[3] =  m[0] / cross;
+}
+
+function toWorld(x,y){
+    var xx, yy, m, result;
+    m = invMatrix;
+    xx = x - matrix[4];     // remove the translation
+    yy = y - matrix[5];     // by subtracting the origin
+    // return the point {x:?,y:?} by multiplying xx,yy by the inverse matrix
+    return {
+        x:   xx * m[0] + yy * m[2],
+        y:   xx * m[1] + yy * m[3]
+    }
+}
+
 
 // animationframe
 // drawImage while resizing crop area
@@ -27,6 +61,26 @@ const DEBUG = true;
 
 // when crop tool hits boundary and there's image overflow, zoom/scale image down
 // when cropping down, cropped area zooms out to max width and height according to aspect ratio of container
+/*
+ * Cropping area
+ * on page load dimensions of the cropping area = the scaled dims of the image
+ *
+ * 1.    the min dimensions of the cropping area:
+ *
+ *       a) when the scaled image dims are >= than the cropped area ? 50px square (or according to the aspect ratio)
+ *       b) when the scaled image dims === cropped area ? image dims
+ *
+ * 2.    the max dimensions of the cropping area:
+ *       a) when the image dims are > than the cropped area ? = the container bounds - gutter
+ *
+ *       b) when a crop handler reaches its max bound in any corner
+ *       i) if scaled image dim are greater than the cropped area ? make transform-origin the dragged corner of the cropped Area and scale the image
+ *      while the mouse is down according to mouse position * sensitivity (the more image overflow there is the faster the growth) until the
+ *      cropped area dims reach the scaled height or width of the image
+ *
+ *      c) when scaled image dims === cropping area dims ?
+ *
+ * */
 
 
 export default class ImageEditor {
@@ -41,8 +95,7 @@ export default class ImageEditor {
                 translateY: 0,
                 degrees: 0,
                 radians: getRadianFromDegrees( 0 ),
-                width: 0,
-                height: 0
+                origin: [ 'left', 'top' ]
             },
             // this will contain the last offset position of the image
             // calculated from traslated origin
@@ -50,17 +103,26 @@ export default class ImageEditor {
                 left: 0,
                 top: 0
             },
-            rotated: false
+            rotated: false,
+            width: null,
+            height: null
         };
 
         // the crop tool
         this.croppingArea = {
             // maximum dimensions of the crop tool
-            // rectangle cannot be bigger than these values
+            // crop rectangle cannot be bigger than these values
             // update with viewport size * aspect ratio
             maxDimensions: {
                 width: 0,
                 height: 0
+            },
+            // minimum dimensions of the crop tool
+            // crop rectangle cannot be smaller than these values
+            // update with aspect ratio
+            minDimensions: {
+                width: 50,
+                height: 50
             },
             // current position of the crop rectangle  
             position: {
@@ -69,17 +131,12 @@ export default class ImageEditor {
                 bottom: 0,
                 left: 0
             },
-            // ui-related transformations
-            // not directly related to style.transform
-            // but any changes to the rectangle shape
-            transform: {
-                translateX: 0,
-                translateY: 0,
-                degrees: 0,
-                width: 0,
-                height: 0
-            }       
+            // current dimensions
+            width: null,
+            height: null
         };
+
+        this.constrain = false;
 
         // cache of computed this.imageEditorContainer properties
         this.outerContainer = {
@@ -267,7 +324,11 @@ export default class ImageEditor {
         if  ( hasClass( event.target, `${NAMESPACE}__draggable-corner` ) ) {
             console.log('frag')
             event.stopImmediatePropagation();
-            this.dragRequestId = window.requestAnimationFrame( this.updateWorkspace );
+            //this.dragRequestId = window.requestAnimationFrame( this.updateWorkspace );
+
+            // cache the event
+            this.cropEvent = event;
+
             this.onStartCropResize(event);
             return false;
         }
@@ -276,28 +337,27 @@ export default class ImageEditor {
 
     onStartCropResize ( event ) {
 
+        this.dragging = true;
+
         event.preventDefault();
 
-        this.eventTarget = event.target;
 
         document.addEventListener( 'touchmove', this.onCropResize );
         document.addEventListener( 'touchend', this.onStopCropResize );
         document.addEventListener( 'mousemove', this.onCropResize );
         document.addEventListener( 'mouseup', this.onStopCropResize );
 
-        this.dragging = true;
-
-        const mousePos = getMousePosition( event );
 
         this.mousePos = {
             x: 0,
             y: 0
         };
 
-        this.relativePos = {
-            x: mousePos.x - this.mousePos.x,
-            y: mousePos.y - this.mousePos.y
-        };
+        // TODO: delete
+        // this.relativePos = {
+        //     x: mousePos.x - this.mousePos.x,
+        //     y: mousePos.y - this.mousePos.y
+        // };
 
     }
 
@@ -310,58 +370,88 @@ export default class ImageEditor {
         // now calculate the new dimensions of the crop area
         let width, height, left, top;
 
-        if ( this.eventTarget.classList.contains( `${NAMESPACE}__draggable-corner-se` ) ) {
-            width  = this.mousePos.x - this.cropAreaContainer.offsetLeft;
-            height = this.mousePos.y - this.cropAreaContainer.offsetTop;
-            left = this.cropAreaContainer.offsetLeft;
-            top = this.cropAreaContainer.offsetTop;
+        if ( this.cropEvent.target.classList.contains( `${NAMESPACE}__draggable-corner-se` ) ) {
+
+            width  = this.mousePos.x - this.croppingArea.position.left;
+            height = this.mousePos.y - this.croppingArea.position.top;
+            left = this.croppingArea.position.left;
+            top = this.croppingArea.position.top;
+
+            // origin of image scale should be set to the opposite corner of this handle
+            this.image.transform.origin = [ 'left', 'top' ];
+
         }
 
-        if ( this.eventTarget.classList.contains( `${NAMESPACE}__draggable-corner-sw` ) ) {
-            width  = this.cropAreaContainer.offsetWidth - ( this.mousePos.x - this.cropAreaContainer.offsetLeft );
-            height = this.mousePos.y - this.cropAreaContainer.offsetTop;
+        if ( this.cropEvent.target.classList.contains( `${NAMESPACE}__draggable-corner-sw` ) ) {
+
+            width  = this.croppingArea.width - ( this.mousePos.x - this.croppingArea.position.left );
+            height = this.mousePos.y - this.croppingArea.position.top;
             left = this.mousePos.x;
-            top = this.cropAreaContainer.offsetTop;
+            top = this.croppingArea.position.top;
+
+            // origin of image scale should be set to the opposite corner of this handle
+            this.image.transform.origin = [ 'right', 'top' ];
+
         }
 
-        if ( this.eventTarget.classList.contains( `${NAMESPACE}__draggable-corner-nw` ) ) {
-            width = this.cropAreaContainer.offsetWidth - ( this.mousePos.x - this.cropAreaContainer.offsetLeft );
-            height = this.cropAreaContainer.offsetHeight - ( this.mousePos.y - this.cropAreaContainer.offsetTop );
+        if ( this.cropEvent.target.classList.contains( `${NAMESPACE}__draggable-corner-nw` ) ) {
+
+            width = this.croppingArea.width - ( this.mousePos.x - this.croppingArea.position.left );
+            height = this.croppingArea.height - ( this.mousePos.y - this.croppingArea.position.top );
             left = this.mousePos.x;
             top = this.mousePos.y ;
-            if ( this.constrain || event.shiftKey ) {
-                top = this.mousePos.y - (  Math.round( width / ( this.imageObjClone.width / this.imageObjClone.height ) ) - height );
+            if ( this.constrain || this.cropEvent.shiftKey ) {
+                top = this.mousePos.y - ( ( width / this.image.width * this.image.height ) - height );
             }
+
+            // origin of image scale should be set to the opposite corner of this handle
+            this.image.transform.origin = [ 'right', 'bottom' ];
+
         }
 
-        if ( this.eventTarget.classList.contains( `${NAMESPACE}__draggable-corner-ne` ) ) {
-            width = ( this.mousePos.x - this.cropAreaContainer.offsetLeft );
-            height = this.cropAreaContainer.offsetHeight - ( this.mousePos.y - this.cropAreaContainer.offsetTop );
-            left = this.cropAreaContainer.offsetLeft;
+        if ( this.cropEvent.target.classList.contains( `${NAMESPACE}__draggable-corner-ne` ) ) {
+
+            width = ( this.mousePos.x - this.croppingArea.position.left );
+            height = this.croppingArea.height - ( this.mousePos.y - this.croppingArea.position.top );
+            left = this.croppingArea.position.left;
             top = this.mousePos.y ;
-            if ( this.constrain || event.shiftKey ) {
-                top = this.mousePos.y - (  Math.round( width / ( this.imageObjClone.width / this.imageObjClone.height ) ) - height );
+            if ( this.constrain || this.cropEvent.shiftKey ) {
+                top = this.mousePos.y - ( (width / this.image.width * this.image.height ) - height );
             }
+
+            // origin of image scale should be set to the opposite corner of this handle
+            this.image.transform.origin = [ 'left', 'bottom' ];
+
         }
 
-        if ( this.constrain || event.shiftKey ){
-            height = Math.round( width / ( this.imageObjClone.width/this.imageObjClone.height ) )
+        if ( this.constrain || this.cropEvent.shiftKey ) {
+            height = width / this.image.width * this.image.height;
         }
 
+        // only apply the new dimensions if fall within the min and max values
+        // this needs to be updated depending on the
+        // TODO: the box is sticky when it hits the extremities, and won't resize
 
-        // // only apply the new dimensions if fall within the min and max values
-        // if ( width > this.state.minCropWidth
-        //     && height > this.state.minCropHeight
-        //     && width < this.state.maxCropWidth
-        //     && height < this.state.maxCropHeight ) {
+        if ( width > this.croppingArea.minDimensions.width
+            && height > this.croppingArea.minDimensions.height
+            && width < this.croppingArea.maxDimensions.width
+            && height < this.croppingArea.maxDimensions.height ) {
 
-            // set new crop container data
-            this.cropAreaContainer.style.width = `${width}px`;
-            this.cropAreaContainer.style.height = `${height}px`;
-            this.cropAreaContainer.style.left = `${left}px`;
-            this.cropAreaContainer.style.top = `${top}px`;
+            this.croppingArea.width = width;
+            this.croppingArea.height = height;
 
-        // }
+            this.croppingArea.position = {
+                top,
+                right: left + this.croppingArea.width,
+                bottom: top + this.croppingArea.height,
+                left
+            };
+
+            this.cropAreaContainer.style.width =  `${ this.croppingArea.width }px`;
+            this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
+            this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
+            this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`;
+        }
 
     }
 
@@ -369,6 +459,11 @@ export default class ImageEditor {
 
         this.dragging = false;
         this.mousePos = null;
+        this.cropEvent = null;
+
+        // make sure we scale the image from the original origin
+        this.image.transform.origin = [ 'left', 'top' ];
+
 
         document.removeEventListener( 'mousemove', this.onCropResize );
         document.removeEventListener( 'mouseup', this.onStopCropResize );
@@ -377,13 +472,20 @@ export default class ImageEditor {
         document.removeEventListener( 'touchend', this.onStopCropResize );
 
         this.updateWorkspace();
-        this.drawImage();
+        // this.drawImage();
 
-        window.cancelAnimationFrame( this.dragRequestId );
+
+
+        //window.cancelAnimationFrame( this.dragRequestId );
     }
 
 
+
+
+
     updateWorkspace() {
+
+        console.log( 'tick' );
 
         // cache the container offset width
         this.outerContainer.width = this.imageEditorWorkspace.offsetWidth;
@@ -398,43 +500,73 @@ export default class ImageEditor {
             this.image.rotated,
             EDITOR_GUTTER );
 
-        this.croppingArea.maxDimensions = {
-            width: scaleRatio.width,
-            height: scaleRatio.height
-        };
+        const outerContainerCenterX = Math.floor( ( this.outerContainer.width / 2 ) );
+        const outerContainerCenterY = Math.floor( ( this.outerContainer.height / 2 ) );
 
-        this.croppingArea.position = {
+        // transform origin of scaled image should change any time there's a scaled zoom
+        // this is trigged by the upscaling drag or downscaling mouse up of the cropArea
+        // and will be the opposite corner of the dragged cropArea
 
-        };
+        //const transformOrigin = [ `${ outerContainerCenterX }px`, `${ outerContainerCenterY }px` ];
+        //this.imageObj.style.transformOrigin = transformOrigin.join( ' ' );
 
-
-        const outerContainerCenterX = ( this.outerContainer.width / 2 );
-        const outerContainerCenterY = ( this.outerContainer.height / 2 );
-        const translateX = Math.floor( ( ( outerContainerCenterX - ( scaleRatio.width / 2 ) ) ) );
+        // image transform
+        const translateX = Math.floor( ( ( outerContainerCenterX  - ( scaleRatio.width / 2 ) ) ) );
         const translateY = Math.floor( ( ( outerContainerCenterY - ( scaleRatio.height / 2 ) ) ) );
 
-        this.cropAreaContainer.style.width = `${ scaleRatio.width }px`;
-        this.cropAreaContainer.style.height = `${ scaleRatio.height }px`;
-        this.imageObj.width = scaleRatio.width;
-        this.imageObj.height = scaleRatio.height;
+        this.imageObj.style.transformOrigin = this.image.transform.origin.join( ' ' );
 
-        transformCSS( this.imageObj, translateX, translateY, 1, this.image.transform.radians );
-        transformCSS( this.cropAreaContainer, translateX, translateY, 1, this.image.transform.radians );
+        createMatrix(translateX, translateY, scaleRatio.ratio, this.image.transform.radians );
 
-        // save translate values
+        // css: matrix(scaleX, 0, 0, scaleY, translateX, translateY);
+        // create the matrix at x,y scale, rotation time/3
+
+        //transformCSS( this.imageObj, translateX, translateY, 1, this.image.transform.radians );
+
+
+        var m = matrix;
+        this.imageObj.style.transform = `matrix(${m[0]}, ${m[1]}, ${m[2]}, ${m[3]}, ${m[4]}, ${m[5]})`;
+
+        // save image translate values
         this.image.transform = Object.assign( {}, this.image.transform, {
             translateX,
             translateY,
-            ...scaleRatio
+            ratio: scaleRatio.ratio
         } );
 
-        this.croppingArea.transform = Object.assign( {}, this.croppingArea.transform, {
-            translateX,
-            translateY,
-            ...scaleRatio
-        } );
+        this.image.width = scaleRatio.width;
+        this.image.height = scaleRatio.height;
 
-        this.drawImage();
+
+
+        // crop area transform
+        // TODO: calculate left, top in relation to translateX Y
+        console.log(this.croppingArea.width, scaleRatio.width);
+        this.cropAreaContainer.style.width =  `${ this.croppingArea.width || scaleRatio.width }px`;
+        this.cropAreaContainer.style.height = `${ this.croppingArea.height || scaleRatio.height }px`;
+        this.cropAreaContainer.style.left = `${ this.croppingArea.position.left || translateX  }px`;
+        this.cropAreaContainer.style.top = `${ this.croppingArea.position.top || translateY }px`;
+        this.croppingArea.position = {
+            top: this.croppingArea.position.top || translateY,
+            right: this.croppingArea.position.right || ( translateX + scaleRatio.width ),
+            bottom: this.croppingArea.position.bottom || ( translateY + scaleRatio.height ),
+            left: this.croppingArea.position.left || translateX
+        };
+        this.croppingArea.width = this.croppingArea.width || scaleRatio.width;
+        this.croppingArea.height = this.croppingArea.height || scaleRatio.height;
+
+        this.croppingArea.maxDimensions = {
+            width: scaleRatio.width >= this.outerContainer.width ? this.outerContainer.width : scaleRatio.width,
+            height: scaleRatio.height >= this.outerContainer.height ? this.outerContainer.height : scaleRatio.height
+        };
+
+
+console.log(this.croppingArea);
+
+
+
+
+        //this.drawImage();
         this.resizing = false;
 
     }
@@ -448,7 +580,6 @@ export default class ImageEditor {
         // this will cause a redraw, so the next plan is to calc the coords via math then cache
         // well, that's the plan
         this.croppingArea.position = this.cropAreaContainer.getBoundingClientRect();
-        console.log('this.croppingArea.position', this.croppingArea.position);
 
         // set size of canvas
         // for now we're just flipping by 90deg
@@ -469,8 +600,8 @@ export default class ImageEditor {
 
         // because of the 1px border
         // TODO: make a CONSTANT out of this
-        const sourceX = this.croppingArea.transform.translateX - this.croppingArea.transform.translateX - 1;
-        const sourceY = this.croppingArea.transform.translateY - this.croppingArea.transform.translateY - 1;
+        const sourceX = this.croppingArea.position.left - this.croppingArea.position.lef - 1;
+        const sourceY = this.croppingArea.position.top - this.croppingArea.position.top - 1;
 
         const sourceWidth = this.imageObj.naturalWidth;
         const sourceHeight = this.imageObj.naturalHeight;

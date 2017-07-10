@@ -64,8 +64,9 @@ li {
     pointer-events: none;
     position: absolute;
     z-index: -1;
-    transition: transform .1s linear;
-    transform-origin: 50% 50%; /* this is the default */
+    transition: transform .05s linear;
+    transform-origin: 0 0;
+    display:block;
 }
 
 .image-editor__container-loading .image-editor__image-layer {
@@ -80,17 +81,17 @@ li {
     cursor: pointer;
     display: flex;
     outline: none;
-    transition: transform .1s linear;
     overflow: hidden;
     border: 1px solid black;
     /* to offset the 1px border */
     margin: -1px;
+    /*min-width: 50px;*/
+    /*min-height: 50px;*/
 }
 
 .image-editor__crop-container:active {
     cursor: move;
     background: rgba(204,204,204,0.251);
-    opacity: 0.3;
 }
 
 .image-editor__container-loading .image-editor__crop-container {
@@ -107,7 +108,7 @@ li {
     overflow: hidden;
     left: 33%;
     content: ' ';
-    background: rgba(0, 0, 0, .55);
+    background-color: rgba(0, 0, 0, .55);
     z-index: 1000;
     display: block;
     z-index: 500;
@@ -137,41 +138,63 @@ li {
 .image-editor__draggable-corner {
     position: absolute;
     display: block;
-    width: 20px;
-    height: 20px;
-    background: #222;
+    background: transparent;
     z-index: 999;
-    border: 1px solid white;
-    transform: translate(0px, 0px);
-    transform-origin: 0 0;
-}
-
-.image-editor__draggable-corner:active {
-    background: rgba(255, 255, 255, .5);
+    width: 0;
+    height: 0;
+    border-style: solid;
 }
 
 .image-editor__draggable-corner-nw {
-    top: -10px;
-    left: -10px;
+    top: 0;
+    left: 0;
+    border-width: 10px 10px 0 0;
+    border-color: red transparent transparent transparent;
     cursor: nw-resize;
 }
 
+.image-editor__draggable-corner-nw:active {
+    border-color: blue transparent transparent transparent;
+    border-width: 20px 20px 0 0;
+}
+
 .image-editor__draggable-corner-sw {
-    bottom: -10px;
-    left: -10px;
+    bottom: 0;
+    left: 0;
+    border-width: 10px 0 0 10px;
+    border-color: transparent transparent transparent red;
     cursor: sw-resize;
 }
 
+.image-editor__draggable-corner-sw:active {
+    border-color: transparent transparent transparent blue;
+    border-width: 20px 0 0 20px;
+}
+
 .image-editor__draggable-corner-ne {
-    top: -10px;
-    right: -10px;
+    top: 0;
+    right: 0;
+    border-width: 0 10px 10px 0;
+    border-color: transparent red transparent transparent;
     cursor: ne-resize;
 }
 
+.image-editor__draggable-corner-ne:active {
+    border-color: transparent blue transparent transparent;
+    border-width: 0 20px 20px 0;
+}
+
 .image-editor__draggable-corner-se {
-    bottom: -10px;
-    right: -10px;
+    bottom: 0;
+    right: 0;
+    border-width: 0 0 10px 10px;
+    border-color: transparent transparent red transparent;
     cursor: se-resize;
+}
+
+.image-editor__draggable-corner-se:active {
+    border-color: transparent transparent blue transparent;
+    border-width: 0 0 20px 20px;
 }
 
 /* ANIMATIONS */
