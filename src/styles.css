@@ -65,7 +65,7 @@ li {
     position: absolute;
     z-index: -1;
     display:block;
-    transition: transform 0.1s linear;
+    /*transition: transform 0.1s linear;*/
 }
 
 .image-editor__container-loading .image-editor__image-layer {
