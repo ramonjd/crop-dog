@@ -2,7 +2,7 @@ import ImageEditor from './image-editor';
 
 window.imageEditor = new ImageEditor(
     {
-        imagePath: 'http://localhost:8888/src/to-whom-do-you-bow.jpg',
+        imagePath: 'http://localhost:8888/src/lamda-lamda-lamda.jpg',
         imageAltText: 'A village after dark',
         onWorkSpaceUpdated
     },

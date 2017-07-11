@@ -64,9 +64,8 @@ li {
     pointer-events: none;
     position: absolute;
     z-index: -1;
-    transition: transform .05s linear;
-    transform-origin: 0 0;
     display:block;
+    transition: transform 0.1s linear;
 }
 
 .image-editor__container-loading .image-editor__image-layer {

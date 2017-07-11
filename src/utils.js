@@ -159,8 +159,8 @@ export function getCenterPositionRelativeToParent( childElement, parentElement )
  */
 export function getMousePosition( event, contextElement = null ) {
 
-    const offsetLeft = contextElement ? contextElement.offsetLeft : 0;
-    const offsetTop = contextElement ? contextElement.offsetTop : 0;
+    const offsetLeft = contextElement ? contextElement.offsetLeft : window.pageXOffset;
+    const offsetTop = contextElement ? contextElement.offsetTop : window.pageYOffset;
 
     const x = ( event.pageX || event.touches[0].pageX ) - offsetLeft;
     const y = ( event.pageY || event.touches[0].pageY ) - offsetTop;
