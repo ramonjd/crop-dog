@@ -8,35 +8,25 @@ export function noop() {
 
 /**
  * Throttle a func call every {threshhold}ms
- * @param {Function} fn - function to throttle
- * @param {Number} threshhold - in milliseconds
- * @param {Object} scope - context
- * @returns {Function}
+ * https://developer.mozilla.org/en-US/docs/Web/Events/resize
+ * Usage:
+    throttle("resize", "optimizedResize");
+    // handle event
+    window.addEventListener("optimizedResize", function() {
+        console.log("Resource conscious resize callback!");
+    });
  */
-export function throttle( fn, threshhold = 250, scope ) {
-    let last;
-    let deferTimer;
-
-    return function () {
-
-        const context = scope || this;
-        let now = new Date().getTime();
-        let args = arguments;
-
-        if ( last && now < ( last + threshhold ) ) {
-            // hold on to it
-            clearTimeout(deferTimer);
-
-            deferTimer = setTimeout( function () {
-                last = now;
-                fn.apply( context, args );
-            }, threshhold + last - now);
-
-        } else {
-            last = now;
-            fn.apply( context, args );
-        }
+export function throttle( type, name, obj = window ) {
+    let running = false;
+    const func = function() {
+        if (running) { return; }
+        running = true;
+        requestAnimationFrame(function throttledRequestAnimationFrame() {
+            obj.dispatchEvent( new CustomEvent( name ) );
+            running = false;
+        });
     };
+    obj.addEventListener(type, func);
 }
 
 /**
@@ -169,8 +159,8 @@ export function getCenterPositionRelativeToParent( childElement, parentElement )
  */
 export function getMousePosition( event, contextElement = null ) {
 
-    const offsetLeft = contextElement ? contextElement.offsetLeft : 0;
-    const offsetTop = contextElement ? contextElement.offsetTop : 0;
+    const offsetLeft = contextElement ? contextElement.offsetLeft : window.pageXOffset;
+    const offsetTop = contextElement ? contextElement.offsetTop : window.pageYOffset;
 
     const x = ( event.pageX || event.touches[0].pageX ) - offsetLeft;
     const y = ( event.pageY || event.touches[0].pageY ) - offsetTop;
@@ -179,4 +169,82 @@ export function getMousePosition( event, contextElement = null ) {
         x,
         y
     };
+}
+
+
+/**
+ * Conserve aspect ratio of the orignal region. Useful when shrinking/enlarging
+ * images to fit into a certain area.
+ * At the moment we expect rotations of only 90 degrees.
+ * This could be improved by always checking if the bounding box of a rotated rectangle fits within the scaled container
+ *
+ * @param {Number} srcWidth Source area width
+ * @param {Number} srcHeight Source area height
+ * @param {Number} maxWidth Fittable area maximum available width
+ * @param {Number} maxHeight Fittable area maximum available height
+ * @param {Boolean} rotated
+ * @param {Number} gutter - Optional percentage to increase or decrease the new fit dimensions
+ * @return {Object} { width, heigth }
+ */
+export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeight, rotated = false, gutter = 1 ) {
+
+    const aspectRatio = rotated ? Math.min( maxHeight / srcWidth, maxWidth / srcHeight ) : Math.min( maxWidth / srcWidth, maxHeight / srcHeight );
+
+    // reduce ratio to gutter percentage amount
+    const ratio = aspectRatio * gutter;
+
+    // widths with ratio applied
+    const width = Math.floor( srcWidth * ratio ) ;
+    const height = Math.floor( srcHeight * ratio ) ;
+
+    return {
+        ratio,
+        width,
+        height
+    };
+}
+
+export function calculateOriginalDimensionsFromScaled( scaledWidth, scaledHeight, ratio ) {
+
+    // widths with ratio applied
+    const width = Math.floor( scaledWidth / ratio ) ;
+    const height = Math.floor( scaledHeight / ratio ) ;
+
+    return {
+        width,
+        height
+    };
+}
+
+export function transformCSS( element, translateX = 0, translateY = 0, scale = 0, radians = 0 ) {
+    element.style.transform = `translate( ${ translateX }px, ${ translateY }px ) scale( ${ scale } ) rotate( ${ radians }rad ) translateZ( 0px )`;
+    return element;
+}
+
+// Converts from degrees to radians.
+export function getRadianFromDegrees( degrees ) {
+    return degrees * Math.PI / 180;
+}
+
+// Converts from radians to degrees.
+export function getDegreesFromRadians( radians ) {
+    return radians * 180 / Math.PI;
+}
+
+export function regExp( name ) {
+    return new RegExp( `(^| )${name}( |$)` );
+}
+
+export function hasClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype )  ) {
+        return regExp( name ).test( this.element.className );
+    }
+    return element.classList.contains( className );
+}
+
+export function removeClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype ) ) {
+        return element.className =  element.className.replace( regExp( name ), '' );
+    }
+    return element.classList.remove( className );
 }

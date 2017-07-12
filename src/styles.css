@@ -3,10 +3,11 @@
     margin: 0;
     border: 0;
 }
-
+html, body {
+    height: 100%;
+    margin: 0;
+} 
 body {
-    margin: 20px;
-    padding: 20px;
     background: #ccc;
 }
 
@@ -15,71 +16,71 @@ li {
     margin: 0 0 10px 0;
 }
 
-/* IMAGE EDITOR */
+/* ============================= IMAGE EDITOR */
 
-.image-editor__canvas-container {
-    overflow: hidden;
+.image-editor__container {
+    background: #fff;
+    outline: none;
+    flex:1;
     position:relative;
-    min-width: 600px;
-    min-height: 400px;
-    display: block;
-    z-index: 0;
-    margin: 0 auto;
-    box-sizing: border-box;
+    margin: 100px;
 }
 
-
-.image-editor__canvas-container-loading {
-    animation-name: pulse_animation;
-    animation-duration: 2000ms;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
+.image-editor__workspace {
+    background-color:ccc;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;    
+    width:100%;
+    height:100%;  
 }
 
-.image-editor__canvas-container-loading .image-editor__crop-container {
+.image-editor__container-loading {
+    background: white;
+}
+
+.image-editor__container-loading .image-editor__workspace {
     visibility: hidden;
 }
 
-.image-editor__canvas-container canvas {
-    width: 600px;
-    height: 400px;
-    left: 0;
-    position: absolute;
-    top: 0;
-    visibility: visible;
+.image-editor__canvas-ui {
     display: block;
-    z-index: 10;
-    pointer-events: none;
+    visibility: hidden;
 }
 
-
-.image-editor__canvas-container img {
-    padding: 0;
-    margin: 0;
-    user-select: none;
-    z-index: -1;
-    opacity: 0.2;
-    position: absolute;
+.image-editor__canvas-workspace {
     display: block;
-    transform: translate(0px, 0px);
-    transform-origin: 0 0;
+    visibility: hidden;
+}
+
+.image-editor__image-layer {
+    opacity: .5;
+    pointer-events: none;
+    position: absolute;
+    display:block;
+    /*transition: transform 0.1s linear;*/
+}
+
+.image-editor__container-loading .image-editor__image-layer {
+    transition: none;
 }
 
 .image-editor__crop-container  {
-    border: 2px solid rgba(255, 255, 255, .7);
-    padding: 0;
-    margin: auto;
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 100;
-    height: 250px; /* give it some initial dimensions */
-    width: 500px;
-    box-sizing: border-box;
+    z-index: 1;
     cursor: pointer;
     display: flex;
+    outline: none;
     overflow: hidden;
-    visibility: visible;
+    border: 1px solid black;
+    /* to offset the 1px border */
+    margin: -1px;
+    /*min-width: 50px;*/
+    /*min-height: 50px;*/
 }
 
 .image-editor__crop-container:active {
@@ -87,6 +88,9 @@ li {
     background: rgba(204,204,204,0.251);
 }
 
+.image-editor__container-loading .image-editor__crop-container {
+    transition: none;
+}
 
 .image-editor__crop-container:active .image-editor__guide,
 .image-editor__crop-container:active:after,
@@ -98,9 +102,10 @@ li {
     overflow: hidden;
     left: 33%;
     content: ' ';
-    background: rgba(255, 255, 255, .33);
+    background-color: rgba(0, 0, 0, .55);
     z-index: 1000;
     display: block;
+    z-index: 500;
 }
 
 .image-editor__crop-container:active:before {
@@ -123,94 +128,70 @@ li {
     top: auto;
 }
 
-.image-editor__crop-container:active canvas {
-    visibility: hidden;
-}
-
-.image-editor__crop-container:active ~ img {
-    opacity: .8;
-}
-
-.image-editor__image-layer {
-    pointer-events: none;
-}
 
 .image-editor__draggable-corner {
     position: absolute;
     display: block;
-    width: 20px;
-    height: 20px;
-    background: #222;
+    background: transparent;
     z-index: 999;
-    border: 1px solid white;
-    transform: translate(0px, 0px);
-    transform-origin: 0 0;
-}
-
-.image-editor__draggable-corner:active {
-    background: rgba(255, 255, 255, .5);
+    width: 0;
+    height: 0;
+    border-style: solid;
 }
 
 .image-editor__draggable-corner-nw {
-    top: -10px;
-    left: -10px;
+    top: 0;
+    left: 0;
+    border-width: 10px 10px 0 0;
+    border-color: red transparent transparent transparent;
     cursor: nw-resize;
 }
 
+.image-editor__draggable-corner-nw:active {
+    border-color: blue transparent transparent transparent;
+    border-width: 20px 20px 0 0;
+}
+
 .image-editor__draggable-corner-sw {
-    bottom: -10px;
-    left: -10px;
+    bottom: 0;
+    left: 0;
+    border-width: 10px 0 0 10px;
+    border-color: transparent transparent transparent red;
     cursor: sw-resize;
 }
 
+.image-editor__draggable-corner-sw:active {
+    border-color: transparent transparent transparent blue;
+    border-width: 20px 0 0 20px;
+}
+
 .image-editor__draggable-corner-ne {
-    top: -10px;
-    right: -10px;
+    top: 0;
+    right: 0;
+    border-width: 0 10px 10px 0;
+    border-color: transparent red transparent transparent;
     cursor: ne-resize;
 }
 
+.image-editor__draggable-corner-ne:active {
+    border-color: transparent blue transparent transparent;
+    border-width: 0 20px 20px 0;
+}
+
 .image-editor__draggable-corner-se {
-    bottom: -10px;
-    right: -10px;
+    bottom: 0;
+    right: 0;
+    border-width: 0 0 10px 10px;
+    border-color: transparent transparent red transparent;
     cursor: se-resize;
 }
 
-
-/* ELEMENTS EXTERNAL TO THE IMAGE EDITING TOOL */
-.media-image-editor__container,
-.media-image-editor__canvas-container,
-.media-image-editor__tool-bar {
-    display: flex;
-    flex-direction: column;
+.image-editor__draggable-corner-se:active {
+    border-color: transparent transparent blue transparent;
+    border-width: 0 0 20px 20px;
 }
 
-.media-image-editor__tool-bar,
-.media-image-editor__container {
-    margin: 0 auto;
-    width: 80%;
-}
-
-.media-image-editor__tool-bar {
-    display: flex;
-    flex-direction: row;
-}
-
-.media-image-editor__tool-bar .media-image-editor__tool-button {
-    justify-content: center;
-    align-items: flex-end;
-}
-
-.media-image-editor__tool-button {
-    background-color: #88ABC2;
-    padding: 10px;
-    display: inline-block;
-    color: #49708A;
-    cursor: pointer;
-    margin: 20px;
-    font-size: 1.5rem;
-}
-
-/* ANIMATIONS */
+/* ============================= ANIMATIONS */
 
 @keyframes pulse_animation {
     0% { opacity: 1; }
@@ -220,14 +201,38 @@ li {
     100% { opacity: 1; }
 }
 
-/* DEBUG */
+/* ============================= APP STYLES */
 
+.media-image-editor__container {
+    height: 100%;
+    width: 100%;
+}
+.media-image-editor__canvas-container {
+    height:100%;
+    display:flex;
+    flex-direction: row;
+    align-content: stretch;
+  
+}
+
+/* ============================= DEBUG */
 .media-image-editor_debug-container {
-    width: 400px;
-    clear: both;
-    margin: 50px auto;
-    border: 8px solid rgba(0, 0, 0, .5);
-    padding: 20px;
+    display: block;
+    background: red;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    z-index: 500;
+    padding: 0;
+    box-sizing: border-box;
+    border: 10px solid rgba( 255, 255, 255, 0.5 );
+    width: 200px;
+
+}
+.media-image-editor_debug-values {
+    color: white;
+    font-size: .8em;
+    padding: 10px;
 }
 
 .media-image-editor_debug__preview-container {
@@ -235,6 +240,8 @@ li {
 }
 
 .media-image-editor_debug__preview-container img {
+    display: block;
     width: 100%;
-    margin: 10px 0;
+    height: 100%;
+
 }
