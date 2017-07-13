@@ -23,18 +23,10 @@ li {
     outline: none;
     flex:1;
     position:relative;
-    margin: 100px;
+
 }
 
-.image-editor__workspace {
-    background-color:ccc;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;    
-    width:100%;
-    height:100%;  
+.image-editor__workspace { 
 }
 
 .image-editor__container-loading {
@@ -61,10 +53,12 @@ li {
     position: absolute;
     display:block;
     /*transition: transform 0.1s linear;*/
+     transform-origin: 0 0;
 }
 
 .image-editor__container-loading .image-editor__image-layer {
     transition: none;
+   
 }
 
 .image-editor__crop-container  {

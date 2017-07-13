@@ -248,3 +248,42 @@ export function removeClass( element, className ) {
     }
     return element.classList.remove( className );
 }
+
+export function createTransformMatrix( transformMatrix, inverseTransformMatrix, x, y, scale, rotate ) {
+
+    // create the rotation and scale parts of the transformMatrix
+    transformMatrix[3] =   transformMatrix[0] = Math.cos(rotate) * scale;
+    transformMatrix[2] = -(transformMatrix[1] = Math.sin(rotate) * scale);
+
+    // add the translation
+    transformMatrix[4] = x;
+    transformMatrix[5] = y;
+
+    // calculate the inverse transformation
+
+    // first get the cross product of x axis and y axis
+    var cross = transformMatrix[0] * transformMatrix[3] - transformMatrix[1] * transformMatrix[2];
+
+    // now get the inverted axis
+    inverseTransformMatrix[0] =  transformMatrix[3] / cross;
+    inverseTransformMatrix[1] = -transformMatrix[1] / cross;
+    inverseTransformMatrix[2] = -transformMatrix[2] / cross;
+    inverseTransformMatrix[3] =  transformMatrix[0] / cross;
+    
+
+    return {
+        transformMatrix,
+        inverseTransformMatrix
+    };
+};
+
+export function getOriginalCoordinatesFromTransformedMatrix( transformMatrix, inverseTransformMatrix, x, y ) {
+    var xx, yy;
+    xx = x - transformMatrix[4];     // remove the translation
+    yy = y - transformMatrix[5];     // by subtracting the origin
+    // return the point {x:?,y:?} by multiplying xx,yy by the inverse matrix
+    return {
+        x:   xx * inverseTransformMatrix[0] + yy * inverseTransformMatrix[2],
+        y:   xx * inverseTransformMatrix[1] + yy * inverseTransformMatrix[3]
+    }
+}
