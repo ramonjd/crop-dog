@@ -414,6 +414,15 @@ export default class ImageEditor {
             && height > this.croppingArea.minDimensions.height
             && width < this.croppingArea.maxDimensions.width
             && height < this.croppingArea.maxDimensions.height ) {
+let zoom = false;
+                   // if both height and width have changed 
+                   console.log(Math.abs(width - this.croppingArea.width ));
+                 if ( 
+                     Math.abs(width - this.croppingArea.width ) > 0
+                     
+                     && Math.abs(height - this.croppingArea.height ) > 0 ) {
+                        zoom = true;
+                 } 
 
             this.croppingArea.width = width;
             this.croppingArea.height = height;
@@ -428,6 +437,9 @@ export default class ImageEditor {
             this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
             this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
             this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`;
+
+              
+             if (zoom)  this.zoomImage();
         }
 
     }
@@ -456,7 +468,7 @@ export default class ImageEditor {
 
         // this.updateWorkspace();
         // this.drawImage();
-        this.zoomImage();
+        //this.zoomImage();
 
 
 
@@ -464,6 +476,7 @@ export default class ImageEditor {
     }
 
     zoomImage() {
+
         const zoomRatio = getZoomRatio( 
             getHypotenuse( this.croppingArea.width, this.croppingArea.height ),
             getHypotenuse( this.image.width, this.image.height )
@@ -517,7 +530,7 @@ this.image.transform.scale,
                 // play with this
                 0, 
                 0, 
-                this.image.transform.scale + (this.image.transform.scale * (1 - zoomRatio)), 
+                (this.image.transform.scale * (1 - zoomRatio)), 
                 this.image.transform.radians 
                 )
         };
