@@ -429,9 +429,14 @@ export default class ImageEditor {
             this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
             this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`;
 
-              
+              this.cropActionTriggered = true;
              //if (zoom)  this.zoomImage();
+        } else {
+                      this.cropActionTriggered = false;
+
         }
+
+
 
     }
 
@@ -440,9 +445,17 @@ export default class ImageEditor {
         this.dragging = false;
         this.mousePos = null;
         this.cropEvent = null;
+      document.removeEventListener( 'mousemove', this.onCropResize );
+        document.removeEventListener( 'mouseup', this.onStopCropResize );
 
-        const imageRect = getOffsetRelativeToParent( `.${NAMESPACE}__image-layer`, `.${NAMESPACE}__container`);
+        document.removeEventListener( 'touchmove', this.onCropResize );
+        document.removeEventListener( 'touchend', this.onStopCropResize );
 
+        if (!this.cropActionTriggered) {
+            return;
+        }
+
+      
 
          // get aspect ratio of to-be-resized crop area
         const scaleRatio = calculateAspectRatioFit(
@@ -453,88 +466,23 @@ export default class ImageEditor {
             this.image.rotated,
             1 );
 
-        console.log(scaleRatio);
-
-
-        this.croppingArea.scale = {
-            width: this.croppingArea.width / this.image.width,
-            height: this.croppingArea.height / this.image.height,
-            top: this.croppingArea.position.top / this.image.height ,
-            left: this.croppingArea.position.left / this.image.width,
-        };
-
-
-        document.removeEventListener( 'mousemove', this.onCropResize );
-        document.removeEventListener( 'mouseup', this.onStopCropResize );
-
-        document.removeEventListener( 'touchmove', this.onCropResize );
-        document.removeEventListener( 'touchend', this.onStopCropResize );
-
-        // this.updateWorkspace();
-        // this.drawImage();
-        //this.zoomImage();
 
 
 
-        //window.cancelAnimationFrame( this.dragRequestId );
-    }
 
-    zoomImage() {
+        const translateY =  (-1 * (this.croppingArea.position.top * scaleRatio.ratio )) + (this.image.transform.translateY * scaleRatio.ratio);
+        const translateX =  (-1 * (this.croppingArea.position.left * scaleRatio.ratio )) + (this.image.transform.translateX * scaleRatio.ratio);
 
-        const zoomRatio = getZoomRatio( 
-            getHypotenuse( this.croppingArea.width, this.croppingArea.height ),
-            getHypotenuse( this.image.width, this.image.height )
-        );
-
-
-        // get aspect ratio
-        const scaleRatio = calculateAspectRatioFit(
-            this.croppingArea.width,
-            this.croppingArea.height,
-            this.outerContainer.width,
-            this.outerContainer.height,
-            this.image.rotated,
-            1 );
-
-        // const scaleRatio = calculateAspectRatioFit(
-        //     this.croppingArea.width,
-        //     this.croppingArea.height,
-        //     this.outerContainer.width,
-        //     this.outerContainer.height,
-        //     this.image.rotated,
-        //     1 );
-
-        // this.croppingArea.height = this.image.height;
-        // this.croppingArea.width = this.image.width;
-        // this.croppingArea.position = {
-        //     top: 0,
-        //     right: scaleRatio.width,
-        //     bottom: scaleRatio.height,
-        //     left: 0
-        // };
-
-        // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left   }px`;
-        // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top  }px`;
-        // this.cropAreaContainer.style.width =  `${ this.croppingArea.width  }px`;
-        // this.cropAreaContainer.style.height =  `${ this.croppingArea.height  }px`;
-
-
-console.log( 
-   // this.image.transform.scale + (this.image.transform.scale * (1 - zoomRatio)),  this.image.transform.scale,
-this.image.transform.scale,
-    scaleRatio.ratio
-
-);
-
-
+console.log(translateY);
+        
         this.transformMatrices = {
             ...createTransformMatrix( 
                 this.transformMatrices.transformMatrix, 
                 this.transformMatrices.inverseTransformMatrix, 
                 // play with this
-                0, 
-                0, 
-                (this.image.transform.scale * (1 - zoomRatio)), 
+                translateX, 
+                translateY, 
+                this.image.transform.scale * scaleRatio.ratio, 
                 this.image.transform.radians 
                 )
         };
@@ -547,13 +495,55 @@ this.image.transform.scale,
             ${this.transformMatrices.transformMatrix[4]}, 
             ${this.transformMatrices.transformMatrix[5]})`;
 
-        // save image translate values
+
+      // save image translate values
+              const imageRect = document.querySelector(`.${NAMESPACE}__image-layer`).getBoundingClientRect();
+
+      this.image.width = imageRect.width;
+      this.image.height = imageRect.height;
         this.image.transform = Object.assign( {}, this.image.transform, {
-            scale: scaleRatio.ratio
+            translateX,
+            translateY,
+            scale: this.image.transform.scale * scaleRatio.ratio
         } );
 
+
+
+        this.croppingArea.width = scaleRatio.width;
+        this.croppingArea.height = scaleRatio.height;
+        this.croppingArea.position.top = 0;
+        this.croppingArea.position.left =  0 ;
+
+
+        this.cropAreaContainer.style.left = `${ this.croppingArea.position.left   }px`;
+        this.cropAreaContainer.style.top = `${ this.croppingArea.position.top  }px`;
+        this.cropAreaContainer.style.width =  `${ this.croppingArea.width  }px`;
+        this.cropAreaContainer.style.height =  `${ this.croppingArea.height  }px`;
+
+        this.croppingArea.scale = {
+            width: this.croppingArea.width / this.image.width,
+            height: this.croppingArea.height / this.image.height,
+            top: this.croppingArea.position.top / this.image.height ,
+            left: this.croppingArea.position.left / this.image.width,
+        };
+                // cache the container offset width
+        this.outerContainer.width = this.imageEditorContainer.offsetWidth;
+        this.outerContainer.height = this.imageEditorContainer.offsetHeight;
+        this.croppingArea.maxDimensions = {
+            width: this.image.width >= this.outerContainer.width ? this.outerContainer.width : this.image.width,
+            height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
+        };
+  
+
+
+
+
+        //window.cancelAnimationFrame( this.dragRequestId );
     }
 
+    zoomImage() {}
+
+    prepareWorkspace() {}
 
     updateWorkspace() {
 
@@ -561,8 +551,11 @@ this.image.transform.scale,
         this.outerContainer.width = this.imageEditorContainer.offsetWidth;
         this.outerContainer.height = this.imageEditorContainer.offsetHeight;
 
+        let scaleRatio;
+       //if ( ! this.croppingArea.touched ) {
+
         // get aspect ratio
-        const scaleRatio = calculateAspectRatioFit(
+        scaleRatio = calculateAspectRatioFit(
             this.imageObj.naturalWidth,
             this.imageObj.naturalHeight,
             this.outerContainer.width,
@@ -573,7 +566,11 @@ this.image.transform.scale,
         this.image.width = scaleRatio.width;
         this.image.height = scaleRatio.height;
 
+      // } 
 
+
+
+       
 
         // image transform
         // const outerContainerCenterX = Math.floor( ( this.outerContainer.width / 2 ) );
@@ -600,6 +597,13 @@ this.image.transform.scale,
             ${this.transformMatrices.transformMatrix[4]}, 
             ${this.transformMatrices.transformMatrix[5]})`;
 
+
+                    // save image translate values
+        this.image.transform = Object.assign( {}, this.image.transform, {
+            translateX,
+            translateY,
+            scale: scaleRatio.ratio
+        } );
  
         if ( ! this.croppingArea.touched ) {
             this.croppingArea.height = this.image.height;
@@ -611,8 +615,8 @@ this.image.transform.scale,
                 left: 0
             };
         } else {
-            this.croppingArea.width = this.image.width * this.croppingArea.scale.width;
-            this.croppingArea.height = this.image.height * this.croppingArea.scale.height;
+            this.croppingArea.width = this.croppingArea.scale.width * this.image.width;
+            this.croppingArea.height = this.croppingArea.scale.height * this.image.height;
             this.croppingArea.position.top = ( this.croppingArea.scale.top * this.image.height) ;
             this.croppingArea.position.left =  ( this.croppingArea.scale.left * this.image.width) ;
         }
@@ -627,12 +631,7 @@ this.image.transform.scale,
             height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
         };
 
-        // save image translate values
-        this.image.transform = Object.assign( {}, this.image.transform, {
-            translateX,
-            translateY,
-            scale: scaleRatio.ratio
-        } );
+
 
         //  this.image.position = {
         //     top: Math.floor( outerContainerCenterY - ( scaleRatio.height / 2 ) ) ,

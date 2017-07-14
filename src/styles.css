@@ -21,7 +21,11 @@ li {
 .image-editor__container {
     background: #fff;
     outline: none;
-    flex:1;
+    position: relative;
+    /* width: 500px;
+    height: 500px; */
+    flex: 1;
+    border: 1px solid pink;
     position:relative;
 
 }
