@@ -24,9 +24,11 @@ li {
     position: relative;
     /* width: 500px;
     height: 500px; */
-    flex: 1;
+    /* flex: 1; */
     border: 1px solid pink;
     position:relative;
+    height: 80%;
+    width: 80%;
 
 }
 
@@ -56,7 +58,7 @@ li {
     pointer-events: none;
     position: absolute;
     display:block;
-    /*transition: transform 0.1s linear;*/
+    transition: transform 0.1s linear;
      transform-origin: 0 0;
 }
 
@@ -75,6 +77,9 @@ li {
     outline: none;
     overflow: hidden;
     border: 1px solid black;
+    /* switch this off while cropping */
+        transition: all 0.09s linear;
+
     /* to offset the 1px border */
     margin: -1px;
     /*min-width: 50px;*/

@@ -496,11 +496,7 @@ console.log(translateY);
             ${this.transformMatrices.transformMatrix[5]})`;
 
 
-      // save image translate values
-              const imageRect = document.querySelector(`.${NAMESPACE}__image-layer`).getBoundingClientRect();
-
-      this.image.width = imageRect.width;
-      this.image.height = imageRect.height;
+  
         this.image.transform = Object.assign( {}, this.image.transform, {
             translateX,
             translateY,
@@ -508,6 +504,10 @@ console.log(translateY);
         } );
 
 
+
+
+      this.image.width = this.image.width * scaleRatio.ratio;
+      this.image.height = this.image.height * scaleRatio.ratio;
 
         this.croppingArea.width = scaleRatio.width;
         this.croppingArea.height = scaleRatio.height;
@@ -526,9 +526,8 @@ console.log(translateY);
             top: this.croppingArea.position.top / this.image.height ,
             left: this.croppingArea.position.left / this.image.width,
         };
-                // cache the container offset width
-        this.outerContainer.width = this.imageEditorContainer.offsetWidth;
-        this.outerContainer.height = this.imageEditorContainer.offsetHeight;
+
+
         this.croppingArea.maxDimensions = {
             width: this.image.width >= this.outerContainer.width ? this.outerContainer.width : this.image.width,
             height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
@@ -552,8 +551,8 @@ console.log(translateY);
         this.outerContainer.height = this.imageEditorContainer.offsetHeight;
 
         let scaleRatio;
-       //if ( ! this.croppingArea.touched ) {
 
+ if ( ! this.croppingArea.touched ) {
         // get aspect ratio
         scaleRatio = calculateAspectRatioFit(
             this.imageObj.naturalWidth,
@@ -563,10 +562,26 @@ console.log(translateY);
             this.image.rotated,
             1 );
 
-        this.image.width = scaleRatio.width;
+ this.image.width = scaleRatio.width;
         this.image.height = scaleRatio.height;
+this.image.transform.scale = scaleRatio.ratio;
 
-      // } 
+    } else {
+        scaleRatio = calculateAspectRatioFit(
+            this.croppingArea.width,
+            this.croppingArea.height,
+            this.outerContainer.width,
+            this.outerContainer.height,
+            this.image.rotated,
+            1 );
+        this.image.width = this.image.width *  scaleRatio.ratio;
+        this.image.height = this.image.height * scaleRatio.ratio;       
+    this.image.transform.scale = this.image.transform.scale * scaleRatio.ratio
+    }
+
+       
+
+     
 
 
 
@@ -575,8 +590,11 @@ console.log(translateY);
         // image transform
         // const outerContainerCenterX = Math.floor( ( this.outerContainer.width / 2 ) );
         // const outerContainerCenterY = Math.floor( ( this.outerContainer.height / 2 ) );
-        const translateX = 0 ;
-        const translateY = 0 ;
+     
+
+       const translateY =  (-1 * (this.croppingArea.position.top * scaleRatio.ratio )) + (this.image.transform.translateY * scaleRatio.ratio);
+        const translateX =  (-1 * (this.croppingArea.position.left * scaleRatio.ratio )) + (this.image.transform.translateX * scaleRatio.ratio);
+
 
         this.transformMatrices = {
             ...createTransformMatrix( 
@@ -584,7 +602,7 @@ console.log(translateY);
                 this.transformMatrices.inverseTransformMatrix, 
                 translateX, 
                 translateY, 
-                scaleRatio.ratio, 
+                this.image.transform.scale,
                 this.image.transform.radians 
                 )
         };
@@ -601,8 +619,7 @@ console.log(translateY);
                     // save image translate values
         this.image.transform = Object.assign( {}, this.image.transform, {
             translateX,
-            translateY,
-            scale: scaleRatio.ratio
+            translateY
         } );
  
         if ( ! this.croppingArea.touched ) {
