@@ -414,15 +414,6 @@ export default class ImageEditor {
             && height > this.croppingArea.minDimensions.height
             && width < this.croppingArea.maxDimensions.width
             && height < this.croppingArea.maxDimensions.height ) {
-let zoom = false;
-                   // if both height and width have changed 
-                   console.log(Math.abs(width - this.croppingArea.width ));
-                 if ( 
-                     Math.abs(width - this.croppingArea.width ) > 0
-                     
-                     && Math.abs(height - this.croppingArea.height ) > 0 ) {
-                        zoom = true;
-                 } 
 
             this.croppingArea.width = width;
             this.croppingArea.height = height;
@@ -439,7 +430,7 @@ let zoom = false;
             this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`;
 
               
-             if (zoom)  this.zoomImage();
+             //if (zoom)  this.zoomImage();
         }
 
     }
@@ -450,7 +441,20 @@ let zoom = false;
         this.mousePos = null;
         this.cropEvent = null;
 
-        const imageRect = getOffsetRelativeToParent( `.${NAMESPACE}__image-layer`, `.${NAMESPACE}__container`)
+        const imageRect = getOffsetRelativeToParent( `.${NAMESPACE}__image-layer`, `.${NAMESPACE}__container`);
+
+
+         // get aspect ratio of to-be-resized crop area
+        const scaleRatio = calculateAspectRatioFit(
+            this.croppingArea.width,
+            this.croppingArea.height,
+            this.outerContainer.width,
+            this.outerContainer.height,
+            this.image.rotated,
+            1 );
+
+        console.log(scaleRatio);
+
 
         this.croppingArea.scale = {
             width: this.croppingArea.width / this.image.width,
