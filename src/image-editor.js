@@ -303,6 +303,7 @@ export default class ImageEditor {
 
         event.preventDefault();
 
+
         // if we've hit a drag handle, stop propagation
         // and throw the event to the crop resize setup method
         if  ( hasClass( event.target, `${NAMESPACE}__draggable-corner` ) ) {
@@ -311,6 +312,8 @@ export default class ImageEditor {
 
             // signals to maintain crop dimensions
             this.croppingArea.touched = true;
+            this.cropAreaContainer.style.transition = 'unset';
+
             // cache the event
             this.cropEvent = event;
 
@@ -378,7 +381,7 @@ export default class ImageEditor {
             height = this.croppingArea.height - ( this.mousePos.y - this.croppingArea.position.top );
             left = this.mousePos.x;
             top = this.mousePos.y ;
-            if ( this.constrain || this.cropEvent.shiftKey ) {
+            if ( this.constrain || event.shiftKey ) {
                 top = this.mousePos.y - ( ( width / this.image.width * this.image.height ) - height );
             }
 
@@ -393,7 +396,7 @@ export default class ImageEditor {
             height = this.croppingArea.height - ( this.mousePos.y - this.croppingArea.position.top );
             left = this.croppingArea.position.left;
             top = this.mousePos.y ;
-            if ( this.constrain || this.cropEvent.shiftKey ) {
+            if ( this.constrain || event.shiftKey ) {
                 top = this.mousePos.y - ( (width / this.image.width * this.image.height ) - height );
             }
 
@@ -402,7 +405,7 @@ export default class ImageEditor {
 
         }
 
-        if ( this.constrain || this.cropEvent.shiftKey ) {
+        if ( this.constrain || event.shiftKey ) {
             height = width / this.image.width * this.image.height;
         }
 
@@ -414,6 +417,13 @@ export default class ImageEditor {
             && height > this.croppingArea.minDimensions.height
             && width < this.croppingArea.maxDimensions.width
             && height < this.croppingArea.maxDimensions.height ) {
+
+                    // zoom out diagonally
+            if ( width > this.croppingArea.width && height > this.croppingArea.height )  {
+                this.zoomOutImage() ;
+
+            }       
+
 
             this.croppingArea.width = width;
             this.croppingArea.height = height;
@@ -432,7 +442,7 @@ export default class ImageEditor {
               this.cropActionTriggered = true;
              //if (zoom)  this.zoomImage();
         } else {
-                      this.cropActionTriggered = false;
+           this.cropActionTriggered = false;
 
         }
 
@@ -450,12 +460,20 @@ export default class ImageEditor {
 
         document.removeEventListener( 'touchmove', this.onCropResize );
         document.removeEventListener( 'touchend', this.onStopCropResize );
+        this.cropAreaContainer.style.transition = 'all 0.09s linear';
 
         if (!this.cropActionTriggered) {
             return;
         }
-
+        this.zoomInImage();
       
+
+
+        //window.cancelAnimationFrame( this.dragRequestId );
+    }
+
+    zoomInImage() {
+
 
          // get aspect ratio of to-be-resized crop area
         const scaleRatio = calculateAspectRatioFit(
@@ -467,13 +485,9 @@ export default class ImageEditor {
             1 );
 
 
-
-
-
         const translateY =  (-1 * (this.croppingArea.position.top * scaleRatio.ratio )) + (this.image.transform.translateY * scaleRatio.ratio);
         const translateX =  (-1 * (this.croppingArea.position.left * scaleRatio.ratio )) + (this.image.transform.translateX * scaleRatio.ratio);
 
-console.log(translateY);
         
         this.transformMatrices = {
             ...createTransformMatrix( 
@@ -504,13 +518,20 @@ console.log(translateY);
         } );
 
 
+        this.image.width = this.image.width * scaleRatio.ratio;
+        this.image.height = this.image.height * scaleRatio.ratio;
 
 
-      this.image.width = this.image.width * scaleRatio.ratio;
-      this.image.height = this.image.height * scaleRatio.ratio;
+       this.croppingArea.maxDimensions = {
+            width: this.image.width >= this.outerContainer.width ? this.outerContainer.width : this.image.width,
+            height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
+        };
 
-        this.croppingArea.width = scaleRatio.width;
-        this.croppingArea.height = scaleRatio.height;
+
+        this.croppingArea.width = scaleRatio.width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : scaleRatio.width;
+        this.croppingArea.height = scaleRatio.height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : scaleRatio.height;
+        
+        
         this.croppingArea.position.top = 0;
         this.croppingArea.position.left =  0 ;
 
@@ -528,20 +549,31 @@ console.log(translateY);
         };
 
 
-        this.croppingArea.maxDimensions = {
-            width: this.image.width >= this.outerContainer.width ? this.outerContainer.width : this.image.width,
-            height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
-        };
-  
+ 
 
 
 
 
-        //window.cancelAnimationFrame( this.dragRequestId );
     }
 
-    zoomImage() {}
 
+    // hos 
+    zoomOutImage() {
+                            console.log('zoom out!!!');
+
+        const scaleRatio = calculateAspectRatioFit(
+            this.croppingArea.width,
+            this.croppingArea.height,
+            this.outerContainer.width,
+            this.outerContainer.height,
+            this.image.rotated,
+            1 );
+            // how to get this value? the distance from the corner to the edge?
+            // should go faster the closer you are to the edge
+            // should go faster the longer you drag (inc something while dragging)
+            console.log(this.image.transform.scale * scaleRatio.ratio * 1.1);
+
+    }
     prepareWorkspace() {}
 
     updateWorkspace() {

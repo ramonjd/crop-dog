@@ -2,7 +2,7 @@ import ImageEditor from './image-editor';
 
 window.imageEditor = new ImageEditor(
     {
-        imagePath: 'http://localhost:8888/src/grid.jpg',
+        imagePath: 'http://localhost:8888/src/A-Village-After-Dark.jpg',
         imageAltText: 'A village after dark',
         onWorkSpaceUpdated
     },

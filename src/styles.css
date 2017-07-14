@@ -24,11 +24,10 @@ li {
     position: relative;
     /* width: 500px;
     height: 500px; */
-    /* flex: 1; */
-    border: 1px solid pink;
+     flex: 1; 
+ 
     position:relative;
-    height: 80%;
-    width: 80%;
+
 
 }
 
@@ -215,6 +214,11 @@ li {
     display:flex;
     flex-direction: row;
     align-content: stretch;
+    min-height: 200px;
+    max-height: 500px;
+    width: 80%;
+    overflow:visible;       border: 3px solid pink;
+
   
 }
 
