@@ -189,9 +189,9 @@ export function getMousePosition( event, contextElement = null ) {
 export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeight, rotated = false, gutter = 1 ) {
 
     const aspectRatio = rotated ? Math.min( maxHeight / srcWidth, maxWidth / srcHeight ) : Math.min( maxWidth / srcWidth, maxHeight / srcHeight );
-
     // reduce ratio to gutter percentage amount
     const ratio = aspectRatio * gutter;
+console.log('aspectRatio', aspectRatio, ratio);
 
     // widths with ratio applied
     const width = Math.floor( srcWidth * ratio ) ;
@@ -277,6 +277,8 @@ export function createTransformMatrix( transformMatrix, inverseTransformMatrix, 
     };
 };
 
+// params: x, y coords in current, transformed matrix
+// returns x,y coords from original, untransformed matrix
 export function getOriginalCoordinatesFromTransformedMatrix( transformMatrix, inverseTransformMatrix, x, y ) {
     var xx, yy;
     xx = x - transformMatrix[4];     // remove the translation
