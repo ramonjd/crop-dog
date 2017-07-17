@@ -77,7 +77,7 @@ var _imageEditor2 = _interopRequireDefault(_imageEditor);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 window.imageEditor = new _imageEditor2.default({
-    imagePath: 'http://localhost:8888/src/A-Village-After-Dark.jpg',
+    imagePath: 'https://ramonjd.github.io/crop-dog/src/A-Village-After-Dark.jpg',
     imageAltText: 'A village after dark',
     onWorkSpaceUpdated: onWorkSpaceUpdated
 }, document.querySelector('.media-image-editor__canvas-container'));
@@ -262,6 +262,7 @@ var ImageEditor = function () {
 
         // the image to manipulate
         this.imageObj = new Image();
+        this.imageObj.setAttribute('crossOrigin', 'anonymous');
         this.imageObj.className = NAMESPACE + '__image-layer';
         this.imageObj.setAttribute('alt', this.imageAltText || IMAGE_ALT_TEXT);
         this.imageObj.onload = this.onImageLoaded;
