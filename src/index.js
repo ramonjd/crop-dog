@@ -14,9 +14,12 @@ window.imageEditor = new ImageEditor(
 function onWorkSpaceUpdated( newImageEditorState ) {
 
     const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
-    croppedImageObj.src = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8);
+    const croppedImageAtag = document.querySelector( '.media-image-editor_debug__preview-container a' );
+    const previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8);
+    croppedImageObj.src = previewImage;
     croppedImageObj.width = newImageEditorState.cropped.width;
     croppedImageObj.height = newImageEditorState.cropped.height;
+    croppedImageAtag.href = previewImage;
 
     const template = `
         <li>

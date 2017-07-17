@@ -17,39 +17,26 @@ li {
 }
 
 /* ============================= IMAGE EDITOR */
-
 .image-editor__container {
-    background: #fff;
     outline: none;
-    position: relative;
-    /* width: 500px;
-    height: 500px; */
-     flex: 1; 
- 
-    position:relative;
-    overflow: hidden;
-
-
-}
-
-.image-editor__workspace {
+    flex: 1; 
+    margin-left: 33%;
+    margin-right: 33%;
 }
 
 .image-editor__container-loading {
     background: white;
 }
 
+.image-editor__workspace {
+    position:relative;
+}
+
 .image-editor__container-loading .image-editor__workspace {
     visibility: hidden;
 }
 
-.image-editor__canvas-ui {
-    display: block;
-    visibility: hidden;
-}
-
 .image-editor__canvas-workspace {
-    display: block;
     visibility: hidden;
 }
 
@@ -59,32 +46,27 @@ li {
     position: absolute;
     display:block;
     transition: transform 0.1s linear;
-     transform-origin: 0 0;
-     transform: translateZ(0);
+    transform-origin: 0 0;
+    transform: translateZ(0);
 }
 
 .image-editor__container-loading .image-editor__image-layer {
     transition: none;
-   
 }
 
 .image-editor__crop-container  {
     position: absolute;
-    top: 0;
-    left: 0;
+      top: 0;
+      left: 0;
     z-index: 1;
     cursor: pointer;
     display: flex;
     outline: none;
     overflow: hidden;
     border: 1px solid black;
-    /* switch this off while cropping */
-        transition: all 0.09s linear;
-
+    transition: all 0.09s linear;
     /* to offset the 1px border */
     margin: -1px;
-    /*min-width: 50px;*/
-    /*min-height: 50px;*/
 }
 
 .image-editor__crop-container:active {
@@ -110,7 +92,6 @@ li {
     z-index: 1000;
     display: block;
     z-index: 500;
-
 }
 
 .image-editor__crop-container:active:before {
@@ -133,7 +114,6 @@ li {
     top: auto;
 }
 
-
 .image-editor__draggable-corner {
     position: absolute;
     display: block;
@@ -143,7 +123,6 @@ li {
     height: 0;
     border-style: solid;
     transition: border 0.1s linear;
-
 }
 
 .image-editor__draggable-corner-nw {
@@ -153,6 +132,7 @@ li {
     border-color: red transparent transparent transparent;
     cursor: nw-resize;
 }
+
 .image-editor__draggable-corner-nw:hover,
 .image-editor__draggable-corner-nw:active {
     border-color: blue transparent transparent transparent;
@@ -166,6 +146,7 @@ li {
     border-color: transparent transparent transparent red;
     cursor: sw-resize;
 }
+
 .image-editor__draggable-corner-sw:hover,
 .image-editor__draggable-corner-sw:active {
     border-color: transparent transparent transparent blue;
@@ -179,6 +160,7 @@ li {
     border-color: transparent red transparent transparent;
     cursor: ne-resize;
 }
+
 .image-editor__draggable-corner-ne:hover,
 .image-editor__draggable-corner-ne:active {
     border-color: transparent blue transparent transparent;
@@ -192,6 +174,7 @@ li {
     border-color: transparent transparent red transparent;
     cursor: se-resize;
 }
+
 .image-editor__draggable-corner-se:hover,
 .image-editor__draggable-corner-se:active {
     border-color: transparent transparent blue transparent;
@@ -200,6 +183,7 @@ li {
 
 /* ============================= ANIMATIONS */
 
+/* loading animation */
 @keyframes pulse_animation {
     0% { opacity: 1; }
     25% { opacity: .25; }
@@ -214,18 +198,16 @@ li {
     height: 100%;
     width: 100%;
 }
+
 .media-image-editor__canvas-container {
     height:80%;
-    display:flex;
+    display: flex;
     flex-direction: row;
     align-content: stretch;
     min-height: 200px;
     max-height: 500px;
     width: 80%;
-    overflow:visible;       border: 3px solid pink;
     margin: 2% 10%;
-
-  
 }
 
 /* ============================= DEBUG */
@@ -240,8 +222,8 @@ li {
     box-sizing: border-box;
     border: 10px solid rgba( 255, 255, 255, 0.5 );
     width: 200px;
-
 }
+
 .media-image-editor_debug-values {
     color: white;
     font-size: .8em;
@@ -254,7 +236,6 @@ li {
 
 .media-image-editor_debug__preview-container img {
     display: block;
-    width: 100%;
-    height: 100%;
-
+    width: 50%;
+    height: 50%;
 }

@@ -191,7 +191,6 @@ export function calculateAspectRatioFit( srcWidth, srcHeight, maxWidth, maxHeigh
     const aspectRatio = rotated ? Math.min( maxHeight / srcWidth, maxWidth / srcHeight ) : Math.min( maxWidth / srcWidth, maxHeight / srcHeight );
     // reduce ratio to gutter percentage amount
     const ratio = aspectRatio * gutter;
-console.log('aspectRatio', aspectRatio, ratio);
 
     // widths with ratio applied
     const width = Math.floor( srcWidth * ratio ) ;
