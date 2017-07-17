@@ -158,6 +158,7 @@ export default class ImageEditor {
 
         // the image to manipulate
         this.imageObj = new Image();
+        this.imageObj.crossOrigin = 'Anonymous';
         this.imageObj.className = `${NAMESPACE}__image-layer`;
         this.imageObj.setAttribute( 'alt', this.imageAltText || IMAGE_ALT_TEXT );
         this.imageObj.onload = this.onImageLoaded;
