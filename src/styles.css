@@ -19,13 +19,16 @@ li {
 /* ============================= IMAGE EDITOR */
 .image-editor__container {
     outline: none;
-    flex: 1; 
-    margin-left: 33%;
-    margin-right: 33%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 .image-editor__container-loading {
     background: white;
+    animation: pulse_animation 1s infinite;
 }
 
 .image-editor__workspace {
@@ -44,9 +47,9 @@ li {
     opacity: .5;
     pointer-events: none;
     position: absolute;
-    display:block;
-    transition: transform 0.1s linear;
-    transform-origin: 0 0;
+    display: block;
+    /* transition: transform 0.1s linear; */
+    /* transform-origin: 0 0; */
     transform: translateZ(0);
 }
 
@@ -62,11 +65,10 @@ li {
     cursor: pointer;
     display: flex;
     outline: none;
-    overflow: hidden;
-    border: 1px solid black;
-    transition: all 0.09s linear;
-    /* to offset the 1px border */
-    margin: -1px;
+    border: 2px solid black;
+    /* transition: all 0.09s linear; */
+    /* to offset the  border */
+    margin: -2px;
 }
 
 .image-editor__crop-container:active {
@@ -78,6 +80,10 @@ li {
     transition: none;
 }
 
+
+.image-editor__crop-container.image-editor__active .image-editor__guide,
+.image-editor__crop-container.image-editor__active:after,
+.image-editor__crop-container.image-editor__active:before,
 .image-editor__crop-container:active .image-editor__guide,
 .image-editor__crop-container:active:after,
 .image-editor__crop-container:active:before {
@@ -89,16 +95,17 @@ li {
     left: 33%;
     content: ' ';
     background-color: rgba(0, 0, 0, .55);
-    z-index: 1000;
     display: block;
     z-index: 500;
 }
 
+.image-editor__crop-container.image-editor__active:before,
 .image-editor__crop-container:active:before {
     right: 33%;
     left: auto;
 }
 
+.image-editor__crop-container.image-editor__active .image-editor__guide-horiz-top,
 .image-editor__crop-container:active .image-editor__guide-horiz-top {
     left: auto;
     width: 100%;
@@ -106,6 +113,7 @@ li {
     top: 33%;
 }
 
+.image-editor__crop-container.image-editor__active .image-editor__guide-horiz-bottom,
 .image-editor__crop-container:active .image-editor__guide-horiz-bottom {
     left: auto;
     width: 100%;
@@ -119,66 +127,39 @@ li {
     display: block;
     background: transparent;
     z-index: 999;
-    width: 0;
-    height: 0;
+    width: 8px;
+    height: 8px;
     border-style: solid;
-    transition: border 0.1s linear;
+    margin: -3px;
+    border-color: black;
 }
 
 .image-editor__draggable-corner-nw {
     top: 0;
     left: 0;
-    border-width: 10px 10px 0 0;
-    border-color: red transparent transparent transparent;
+    border-width: 6px 0 0 6px;
     cursor: nw-resize;
-}
-
-.image-editor__draggable-corner-nw:hover,
-.image-editor__draggable-corner-nw:active {
-    border-color: blue transparent transparent transparent;
-    border-width: 20px 20px 0 0;
 }
 
 .image-editor__draggable-corner-sw {
     bottom: 0;
     left: 0;
-    border-width: 10px 0 0 10px;
-    border-color: transparent transparent transparent red;
+    border-width: 0 0 6px 6px;
     cursor: sw-resize;
-}
-
-.image-editor__draggable-corner-sw:hover,
-.image-editor__draggable-corner-sw:active {
-    border-color: transparent transparent transparent blue;
-    border-width: 20px 0 0 20px;
 }
 
 .image-editor__draggable-corner-ne {
     top: 0;
     right: 0;
-    border-width: 0 10px 10px 0;
-    border-color: transparent red transparent transparent;
+    border-width: 6px 6px 0 0;
     cursor: ne-resize;
-}
-
-.image-editor__draggable-corner-ne:hover,
-.image-editor__draggable-corner-ne:active {
-    border-color: transparent blue transparent transparent;
-    border-width: 0 20px 20px 0;
 }
 
 .image-editor__draggable-corner-se {
     bottom: 0;
     right: 0;
-    border-width: 0 0 10px 10px;
-    border-color: transparent transparent red transparent;
+    border-width: 0 6px 6px 0;
     cursor: se-resize;
-}
-
-.image-editor__draggable-corner-se:hover,
-.image-editor__draggable-corner-se:active {
-    border-color: transparent transparent blue transparent;
-    border-width: 0 0 20px 20px;
 }
 
 /* ============================= ANIMATIONS */
@@ -197,17 +178,14 @@ li {
 .media-image-editor__container {
     height: 100%;
     width: 100%;
+    position: relative;
+    display: flex;
 }
 
 .media-image-editor__canvas-container {
-    height:80%;
-    display: flex;
-    flex-direction: row;
-    align-content: stretch;
-    min-height: 200px;
-    max-height: 500px;
-    width: 80%;
-    margin: 2% 10%;
+    height: 100%;
+    width: 100%;
+    position: absolute;
 }
 
 /* ============================= DEBUG */

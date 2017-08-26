@@ -2,7 +2,7 @@ import ImageEditor from './image-editor';
 
 window.imageEditor = new ImageEditor(
     {
-        imagePath: 'https://ramonjd.github.io/crop-dog/src/A-Village-After-Dark.jpg',
+        imagePath: 'http://localhost:8888/src/amsler.jpg',
         imageAltText: 'A village after dark',
         onWorkSpaceUpdated
     },
@@ -12,7 +12,6 @@ window.imageEditor = new ImageEditor(
 
 // DEBUG
 function onWorkSpaceUpdated( newImageEditorState ) {
-
     const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
     const croppedImageAtag = document.querySelector( '.media-image-editor_debug__preview-container a' );
     const previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8);

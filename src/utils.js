@@ -162,8 +162,8 @@ export function getMousePosition( event, contextElement = null ) {
     const offsetLeft = contextElement ? contextElement.offsetLeft : window.pageXOffset;
     const offsetTop = contextElement ? contextElement.offsetTop : window.pageYOffset;
 
-    const x = ( event.pageX || event.touches[0].pageX ) - offsetLeft;
-    const y = ( event.pageY || event.touches[0].pageY ) - offsetTop;
+    const x = ( event.pageX || ( event.touches && event.touches[0].pageX ) ) - offsetLeft;
+    const y = ( event.pageY || ( event.touches && event.touches[0].pageY ) ) - offsetTop;
 
     return {
         x,
@@ -246,6 +246,13 @@ export function removeClass( element, className ) {
         return element.className =  element.className.replace( regExp( name ), '' );
     }
     return element.classList.remove( className );
+}
+
+export function addClass( element, className ) {
+    if ( ! ( 'classList' in Element.prototype ) ) {
+        return element.className += ' ' + className;
+    }
+    return element.classList.add( className );
 }
 
 export function createTransformMatrix( transformMatrix, inverseTransformMatrix, x, y, scale, rotate ) {

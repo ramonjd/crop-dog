@@ -77,14 +77,13 @@ var _imageEditor2 = _interopRequireDefault(_imageEditor);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 window.imageEditor = new _imageEditor2.default({
-    imagePath: 'https://ramonjd.github.io/crop-dog/src/A-Village-After-Dark.jpg',
+    imagePath: 'http://localhost:8888/src/amsler.jpg',
     imageAltText: 'A village after dark',
     onWorkSpaceUpdated: onWorkSpaceUpdated
 }, document.querySelector('.media-image-editor__canvas-container'));
 
 // DEBUG
 function onWorkSpaceUpdated(newImageEditorState) {
-
     var croppedImageObj = document.querySelector('.media-image-editor_debug__preview-container img');
     var croppedImageAtag = document.querySelector('.media-image-editor_debug__preview-container a');
     var previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8);
@@ -119,7 +118,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var NAMESPACE = 'image-editor';
 var IMAGE_ALT_TEXT = 'Image being edited';
-var EDITOR_GUTTER = 1;
+var ACTIVE_CLASS = 'image-editor__active';
+var EDITOR_GUTTER = .8;
 var DEBUG = true;
 
 // https://codepen.io/anon/pen/YQJmMr
@@ -225,7 +225,13 @@ var ImageEditor = function () {
             // current dimensions
             width: 0,
             height: 0,
-            touched: false
+            touched: false,
+            boundary: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            }
         };
 
         this.constrain = false;
@@ -238,9 +244,6 @@ var ImageEditor = function () {
 
         // this will be an ajax call
         this.imagePath = props.imagePath;
-
-        // container for the original image
-        this.imageObjClone = null;
 
         // append elements
         this.container = container;
@@ -269,6 +272,9 @@ var ImageEditor = function () {
         this.imageObj.onerror = _utils.noop;
 
         // create a clone of the original image
+        // so we can reset and get original props
+        // container for the original image
+        this.imageObjClone = null;
         this.imageObjClone = this.imageObj.cloneNode(true);
 
         // this is the offPage workspace
@@ -397,7 +403,7 @@ var ImageEditor = function () {
         value: function onStartDragCropArea(event) {
 
             event.preventDefault();
-
+            (0, _utils.addClass)(this.cropAreaContainer, ACTIVE_CLASS);
             // if we've hit a drag handle, stop propagation
             // and throw the event to the crop resize setup method
             if ((0, _utils.hasClass)(event.target, NAMESPACE + '__draggable-corner')) {
@@ -407,6 +413,7 @@ var ImageEditor = function () {
                 // signals to maintain crop dimensions
                 this.croppingArea.touched = true;
                 this.cropAreaContainer.style.transition = 'unset';
+                this.imageObj.style.transition = 'unset';
 
                 // cache the event
                 this.cropEvent = event;
@@ -416,9 +423,9 @@ var ImageEditor = function () {
             }
 
             // otherwise we're free to drag the image
-            this.imageEditorContainer.addEventListener('mouseup', this.onStopDragCropArea);
-            this.imageEditorContainer.addEventListener('touchend', this.onStopDragCropArea);
-            this.imageEditorContainer.addEventListener('mouseleave', this.onStopDragCropArea);
+            document.addEventListener('mouseup', this.onStopDragCropArea);
+            document.addEventListener('touchend', this.onStopDragCropArea);
+            document.addEventListener('mouseleave', this.onStopDragCropArea);
 
             var mousePos = (0, _utils.getMousePosition)(event, this.imageEditorContainer);
 
@@ -459,6 +466,7 @@ var ImageEditor = function () {
         key: 'onStopDragCropArea',
         value: function onStopDragCropArea() {
             this.dragging = false;
+            (0, _utils.removeClass)(this.cropAreaContainer, ACTIVE_CLASS);
             document.removeEventListener('mousemove', this.onDragCropArea);
             document.removeEventListener('touchmove', this.onDragCropArea, { passive: true });
 
@@ -490,7 +498,7 @@ var ImageEditor = function () {
     }, {
         key: 'onCropResize',
         value: function onCropResize(event) {
-
+            event.preventDefault();
             this.mousePos = (0, _utils.getMousePosition)(event, this.imageEditorContainer);
             // first check the mouse boundaries
             // now calculate the new dimensions of the crop area
@@ -502,27 +510,82 @@ var ImageEditor = function () {
                 bottom = void 0;
 
             if (this.cropEvent.target.classList.contains(NAMESPACE + '__draggable-corner-se')) {
+
+                // origin of image scale should be set to the opposite corner of this handle
+                this.image.transform.origin = ['left', 'top'];
+
                 width = this.mousePos.x - this.croppingArea.position.left;
                 height = this.mousePos.y - this.croppingArea.position.top;
                 left = this.croppingArea.position.left;
                 top = this.croppingArea.position.top;
 
-                // origin of image scale should be set to the opposite corner of this handle
-                this.image.transform.origin = ['left', 'top'];
+                // height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
+                // height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
+                // width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
+                // width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
+
+                // if ( this.constrain || event.shiftKey ) {
+                //     height = width / this.image.width * this.image.height;
+                // }
+
+                // this.croppingArea.position.left = left;
+                // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
+
+                // this.croppingArea.width = width; 
+                // this.cropAreaContainer.style.width = `${ this.croppingArea.width }px`;
+
+                // this.croppingArea.height = height; 
+                // this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
+
+                // this.croppingArea.position.top = top;
+                // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`; 
+
+
+                // return false;
             }
 
             if (this.cropEvent.target.classList.contains(NAMESPACE + '__draggable-corner-sw')) {
 
-                width = this.croppingArea.width - (this.mousePos.x - this.croppingArea.position.left);
-                height = this.mousePos.y - this.croppingArea.position.top;
-                left = this.mousePos.x;
-                top = this.croppingArea.position.top;
-
                 // origin of image scale should be set to the opposite corner of this handle
                 this.image.transform.origin = ['right', 'top'];
+
+                width = this.croppingArea.width - (this.mousePos.x - this.croppingArea.position.left);
+                left = this.mousePos.x;
+                height = this.mousePos.y - this.croppingArea.position.top;
+                top = this.croppingArea.position.top;
+
+                // height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
+                // height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
+                // width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
+                // width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
+                // left = left >= this.croppingArea.boundary.right - this.croppingArea.minDimensions.width 
+                //   ? this.croppingArea.boundary.right - this.croppingArea.minDimensions.width : left;
+                // left = left <= this.croppingArea.boundary.left ? this.croppingArea.boundary.left : left;
+
+                // if ( this.constrain || event.shiftKey ) {
+                //     height = width / this.image.width * this.image.height;
+                // }
+
+                // this.croppingArea.position.left = left;
+                // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
+
+                // this.croppingArea.width = width; 
+                // this.cropAreaContainer.style.width = `${ this.croppingArea.width }px`;
+
+                // this.croppingArea.height = height; 
+                // this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
+
+                // this.croppingArea.position.top = top;
+                // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`; 
+
+
+                // return false;
             }
 
             if (this.cropEvent.target.classList.contains(NAMESPACE + '__draggable-corner-nw')) {
+
+                // origin of image scale should be set to the opposite corner of this handle
+                this.image.transform.origin = ['right', 'bottom'];
 
                 width = this.croppingArea.width - (this.mousePos.x - this.croppingArea.position.left);
                 height = this.croppingArea.height - (this.mousePos.y - this.croppingArea.position.top);
@@ -531,12 +594,12 @@ var ImageEditor = function () {
                 if (this.constrain || event.shiftKey) {
                     top = this.mousePos.y - (width / this.image.width * this.image.height - height);
                 }
-
-                // origin of image scale should be set to the opposite corner of this handle
-                this.image.transform.origin = ['right', 'bottom'];
             }
 
             if (this.cropEvent.target.classList.contains(NAMESPACE + '__draggable-corner-ne')) {
+
+                // origin of image scale should be set to the opposite corner of this handle
+                this.image.transform.origin = ['left', 'bottom'];
 
                 width = this.mousePos.x - this.croppingArea.position.left;
                 height = this.croppingArea.height - (this.mousePos.y - this.croppingArea.position.top);
@@ -546,47 +609,83 @@ var ImageEditor = function () {
                     top = this.mousePos.y - (width / this.image.width * this.image.height - height);
                 }
 
-                // origin of image scale should be set to the opposite corner of this handle
-                this.image.transform.origin = ['left', 'bottom'];
+                // height = isNaN(height) ? this.croppingArea.height : height;
+                // height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
+                // height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
+                // width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
+                // width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
+                // left = left >= this.croppingArea.boundary.right - this.croppingArea.minDimensions.width 
+                //   ? this.croppingArea.boundary.right - this.croppingArea.minDimensions.width : left;
+                // left = left <= this.croppingArea.boundary.left ? this.croppingArea.boundary.left : left;
+
+                // top = top >= this.croppingArea.boundary.bottom - this.croppingArea.minDimensions.height 
+                //   ? this.croppingArea.boundary.bottom - this.croppingArea.minDimensions.height : top;
+
+                // top = (
+                //   top <= this.croppingArea.boundary.top 
+                //   || isNaN(top) ) 
+                //   ? this.croppingArea.boundary.top : top;
+
+                // if ( this.constrain || event.shiftKey ) {
+                //     height = width / this.image.width * this.image.height;
+                // }
+
+                // this.croppingArea.position.left = left;
+                // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
+
+                // this.croppingArea.width = width; 
+                // this.cropAreaContainer.style.width = `${ this.croppingArea.width }px`;
+
+                // this.croppingArea.height = height; 
+                // this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
+
+                // this.croppingArea.position.top = top;
+                // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`; 
+
+                // return false;
             }
+
+            height = isNaN(height) ? this.croppingArea.height : height;
+            height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
+            height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
+            width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
+            width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
+            left = left >= this.croppingArea.boundary.right - this.croppingArea.minDimensions.width ? this.croppingArea.boundary.right - this.croppingArea.minDimensions.width : left;
+            left = left <= this.croppingArea.boundary.left ? this.croppingArea.boundary.left : left;
+            top = top >= this.croppingArea.boundary.bottom - this.croppingArea.minDimensions.height ? this.croppingArea.boundary.bottom - this.croppingArea.minDimensions.height : top;
+            top = top <= this.croppingArea.boundary.top || isNaN(top) ? this.croppingArea.boundary.top : top;
 
             if (this.constrain || event.shiftKey) {
                 height = width / this.image.width * this.image.height;
             }
 
-            // only apply the new dimensions if fall within the min and max values
-            // this needs to be updated depending on the
-            // TODO: the box is sticky when it hits the extremities, and won't resize
-            if (width >= this.croppingArea.minDimensions.width && height >= this.croppingArea.minDimensions.height && width < this.croppingArea.maxDimensions.width && height < this.croppingArea.maxDimensions.height) {
+            this.croppingArea.position.left = left;
+            this.cropAreaContainer.style.left = this.croppingArea.position.left + 'px';
 
-                // zoom out diagonally
-                this.zoomOut = false;
-                this.cropActionTriggered = true;
+            this.croppingArea.width = width;
+            this.cropAreaContainer.style.width = this.croppingArea.width + 'px';
 
-                if (width > this.croppingArea.width && height > this.croppingArea.height) {
-                    this.zoomOut = true;
-                }
+            this.croppingArea.height = height;
+            this.cropAreaContainer.style.height = this.croppingArea.height + 'px';
 
-                this.croppingArea.width = width;
-                this.croppingArea.height = height;
-                bottom = this.image.height - top - this.croppingArea.height;
-                right = this.image.width - left - this.croppingArea.width;
+            this.croppingArea.position.top = top;
+            this.cropAreaContainer.style.top = this.croppingArea.position.top + 'px';
 
-                this.croppingArea.position = {
-                    top: top >= 0 ? top : 0,
-                    right: right >= 0 ? right : 0,
-                    bottom: bottom >= 0 ? bottom : 0,
-                    left: left >= 0 ? left : 0
-                };
-                this.cropAreaContainer.style.width = this.croppingArea.width + 'px';
-                this.cropAreaContainer.style.height = this.croppingArea.height + 'px';
-                this.cropAreaContainer.style.left = this.croppingArea.position.left + 'px';
-                this.cropAreaContainer.style.top = this.croppingArea.position.top + 'px';
+            this.croppingArea.position.bottom = this.croppingArea.position.top + height;
+            this.croppingArea.position.right = this.croppingArea.position.left + width;
 
-                if (this.zoomOut) {
-                    this.zoomOutImage();
-                }
-            }
+            return false;
+
+            // zoom out diagonally
+            // this.zoomOut = false;
+            // this.cropActionTriggered = true;
+
+            // if ( width > this.croppingArea.width && height > this.croppingArea.height )  {
+            //   this.zoomOut = true;
+            // }
+            //  if (this.zoomOut)   {
+            //     this.zoomOutImage() ;
+            //  }  
         }
     }, {
         key: 'onStopCropResize',
@@ -595,13 +694,14 @@ var ImageEditor = function () {
             this.dragging = false;
             this.mousePos = null;
             this.cropEvent = null;
+            (0, _utils.removeClass)(this.cropAreaContainer, ACTIVE_CLASS);
             document.removeEventListener('mousemove', this.onCropResize);
             document.removeEventListener('mouseup', this.onStopCropResize);
 
             document.removeEventListener('touchmove', this.onCropResize);
             document.removeEventListener('touchend', this.onStopCropResize);
             this.cropAreaContainer.style.transition = 'all 0.09s linear';
-
+            this.imageObj.style.transition = 'transform 0.1s linear';
             if (!this.cropActionTriggered) {
                 return;
             }
@@ -618,11 +718,11 @@ var ImageEditor = function () {
                     top: this.croppingArea.position.top / this.image.height,
                     left: this.croppingArea.position.left / this.image.width
                 };
-            } else {
-                this.zoomInImage();
-            }
+            } else {}
+            //this.zoomInImage();
 
-            this.drawImage();
+
+            //this.drawImage();
         }
     }, {
         key: 'zoomInImage',
@@ -725,12 +825,28 @@ var ImageEditor = function () {
                 // apply them to the cropping area
                 this.croppingArea.height = this.image.height;
                 this.croppingArea.width = this.image.width;
+
+                // center coords of container
+                var outerContainerCenterX = this.outerContainer.width / 2;
+                var outerContainerCenterY = this.outerContainer.height / 2;
+                var imageHalfWidth = this.croppingArea.width / 2;
+                var imageHalfHeight = this.croppingArea.height / 2;
+                var newPositionX = outerContainerCenterX - imageHalfWidth;
+                var newPositionY = outerContainerCenterY - imageHalfHeight;
+
                 this.croppingArea.position = {
-                    top: 0,
-                    right: this.image.width,
-                    bottom: this.image.height,
-                    left: 0
+                    top: newPositionY,
+                    right: newPositionX + this.image.width,
+                    bottom: newPositionY + this.image.height,
+                    left: newPositionX
                 };
+
+                this.croppingArea.boundary = _extends({}, this.croppingArea.position);
+
+                this.image.transform = Object.assign({}, this.image.transform, {
+                    translateX: -1 * (this.imageObj.naturalWidth - this.image.width) / 2 + newPositionX,
+                    translateY: -1 * (this.imageObj.naturalHeight - this.image.height) / 2 + newPositionY
+                });
 
                 // else the ratio we care about is the resized cropping area 
             } else {
@@ -749,10 +865,10 @@ var ImageEditor = function () {
             // TODO: this is not exactly right. 
             // translateX is constantly updated, so we need to apply the correct ratio when scaling
             // haven't worked that out yet  
-            this.image.transform = Object.assign({}, this.image.transform, {
-                translateX: this.image.transform.translateX * scaleRatio.ratio,
-                translateY: this.image.transform.translateY * scaleRatio.ratio
-            });
+            // this.image.transform = Object.assign( {}, this.image.transform, {
+            //     translateX: this.image.transform.translateX * scaleRatio.ratio,
+            //     translateY: this.image.transform.translateY *  scaleRatio.ratio
+            // } );
 
             // set the image transform matrix
             this.transformMatrices = _extends({}, (0, _utils.createTransformMatrix)(this.transformMatrices.transformMatrix, this.transformMatrices.inverseTransformMatrix, this.image.transform.translateX, this.image.transform.translateY, this.image.transform.scale, this.image.transform.radians));
@@ -907,6 +1023,7 @@ exports.getDegreesFromRadians = getDegreesFromRadians;
 exports.regExp = regExp;
 exports.hasClass = hasClass;
 exports.removeClass = removeClass;
+exports.addClass = addClass;
 exports.createTransformMatrix = createTransformMatrix;
 exports.getOriginalCoordinatesFromTransformedMatrix = getOriginalCoordinatesFromTransformedMatrix;
 /**
@@ -1077,8 +1194,8 @@ function getMousePosition(event) {
     var offsetLeft = contextElement ? contextElement.offsetLeft : window.pageXOffset;
     var offsetTop = contextElement ? contextElement.offsetTop : window.pageYOffset;
 
-    var x = (event.pageX || event.touches[0].pageX) - offsetLeft;
-    var y = (event.pageY || event.touches[0].pageY) - offsetTop;
+    var x = (event.pageX || event.touches && event.touches[0].pageX) - offsetLeft;
+    var y = (event.pageY || event.touches && event.touches[0].pageY) - offsetTop;
 
     return {
         x: x,
@@ -1168,6 +1285,13 @@ function removeClass(element, className) {
         return element.className = element.className.replace(regExp(name), '');
     }
     return element.classList.remove(className);
+}
+
+function addClass(element, className) {
+    if (!('classList' in Element.prototype)) {
+        return element.className += ' ' + className;
+    }
+    return element.classList.add(className);
 }
 
 function createTransformMatrix(transformMatrix, inverseTransformMatrix, x, y, scale, rotate) {
