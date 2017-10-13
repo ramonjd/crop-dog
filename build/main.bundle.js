@@ -119,7 +119,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var NAMESPACE = 'image-editor';
 var IMAGE_ALT_TEXT = 'Image being edited';
 var ACTIVE_CLASS = 'image-editor__active';
-var EDITOR_GUTTER = .8;
+var EDITOR_GUTTER = .7;
 var DEBUG = true;
 
 // https://codepen.io/anon/pen/YQJmMr
@@ -222,6 +222,13 @@ var ImageEditor = function () {
                 bottom: 0,
                 left: 0
             },
+            // differences between old and new crop positions 
+            delta: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+            },
             // current dimensions
             width: 0,
             height: 0,
@@ -252,7 +259,6 @@ var ImageEditor = function () {
         this.onImageLoaded = this.onImageLoaded.bind(this);
         this.updateWorkspace = this.updateWorkspace.bind(this);
         this.onWindowResize = this.onWindowResize.bind(this);
-        this.updateWorkspace = this.updateWorkspace.bind(this);
         this.onStartDragCropArea = this.onStartDragCropArea.bind(this);
         this.onDragCropArea = this.onDragCropArea.bind(this);
         this.onStopDragCropArea = this.onStopDragCropArea.bind(this);
@@ -347,7 +353,7 @@ var ImageEditor = function () {
         // and are meant to solve immediate dev problems
         // need review
         this.resizing = false;
-        this.cropActionTriggered;
+        this.cropActionTriggered = false;
 
         this.frameRateInterval = 1000 / 30;
         this.requestAnimationFrameId = null;
@@ -518,30 +524,6 @@ var ImageEditor = function () {
                 height = this.mousePos.y - this.croppingArea.position.top;
                 left = this.croppingArea.position.left;
                 top = this.croppingArea.position.top;
-
-                // height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
-                // height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
-                // width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
-                // width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
-
-                // if ( this.constrain || event.shiftKey ) {
-                //     height = width / this.image.width * this.image.height;
-                // }
-
-                // this.croppingArea.position.left = left;
-                // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
-
-                // this.croppingArea.width = width; 
-                // this.cropAreaContainer.style.width = `${ this.croppingArea.width }px`;
-
-                // this.croppingArea.height = height; 
-                // this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
-
-                // this.croppingArea.position.top = top;
-                // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`; 
-
-
-                // return false;
             }
 
             if (this.cropEvent.target.classList.contains(NAMESPACE + '__draggable-corner-sw')) {
@@ -553,33 +535,6 @@ var ImageEditor = function () {
                 left = this.mousePos.x;
                 height = this.mousePos.y - this.croppingArea.position.top;
                 top = this.croppingArea.position.top;
-
-                // height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
-                // height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
-                // width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
-                // width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
-                // left = left >= this.croppingArea.boundary.right - this.croppingArea.minDimensions.width 
-                //   ? this.croppingArea.boundary.right - this.croppingArea.minDimensions.width : left;
-                // left = left <= this.croppingArea.boundary.left ? this.croppingArea.boundary.left : left;
-
-                // if ( this.constrain || event.shiftKey ) {
-                //     height = width / this.image.width * this.image.height;
-                // }
-
-                // this.croppingArea.position.left = left;
-                // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
-
-                // this.croppingArea.width = width; 
-                // this.cropAreaContainer.style.width = `${ this.croppingArea.width }px`;
-
-                // this.croppingArea.height = height; 
-                // this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
-
-                // this.croppingArea.position.top = top;
-                // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`; 
-
-
-                // return false;
             }
 
             if (this.cropEvent.target.classList.contains(NAMESPACE + '__draggable-corner-nw')) {
@@ -608,43 +563,9 @@ var ImageEditor = function () {
                 if (this.constrain || event.shiftKey) {
                     top = this.mousePos.y - (width / this.image.width * this.image.height - height);
                 }
-
-                // height = isNaN(height) ? this.croppingArea.height : height;
-                // height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
-                // height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
-                // width = width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : width;
-                // width = width <= this.croppingArea.minDimensions.width ? this.croppingArea.minDimensions.width : width;
-                // left = left >= this.croppingArea.boundary.right - this.croppingArea.minDimensions.width 
-                //   ? this.croppingArea.boundary.right - this.croppingArea.minDimensions.width : left;
-                // left = left <= this.croppingArea.boundary.left ? this.croppingArea.boundary.left : left;
-
-                // top = top >= this.croppingArea.boundary.bottom - this.croppingArea.minDimensions.height 
-                //   ? this.croppingArea.boundary.bottom - this.croppingArea.minDimensions.height : top;
-
-                // top = (
-                //   top <= this.croppingArea.boundary.top 
-                //   || isNaN(top) ) 
-                //   ? this.croppingArea.boundary.top : top;
-
-                // if ( this.constrain || event.shiftKey ) {
-                //     height = width / this.image.width * this.image.height;
-                // }
-
-                // this.croppingArea.position.left = left;
-                // this.cropAreaContainer.style.left = `${ this.croppingArea.position.left  }px`;
-
-                // this.croppingArea.width = width; 
-                // this.cropAreaContainer.style.width = `${ this.croppingArea.width }px`;
-
-                // this.croppingArea.height = height; 
-                // this.cropAreaContainer.style.height = `${ this.croppingArea.height }px`;
-
-                // this.croppingArea.position.top = top;
-                // this.cropAreaContainer.style.top = `${ this.croppingArea.position.top }px`; 
-
-                // return false;
             }
 
+            // all this is about ensuring there is no 'sticking' at the extremes  
             height = isNaN(height) ? this.croppingArea.height : height;
             height = height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : height;
             height = height <= this.croppingArea.minDimensions.height ? this.croppingArea.minDimensions.height : height;
@@ -673,12 +594,12 @@ var ImageEditor = function () {
 
             this.croppingArea.position.bottom = this.croppingArea.position.top + height;
             this.croppingArea.position.right = this.croppingArea.position.left + width;
-
+            this.cropActionTriggered = true;
             return false;
 
             // zoom out diagonally
             // this.zoomOut = false;
-            // this.cropActionTriggered = true;
+            // 
 
             // if ( width > this.croppingArea.width && height > this.croppingArea.height )  {
             //   this.zoomOut = true;
@@ -697,73 +618,17 @@ var ImageEditor = function () {
             (0, _utils.removeClass)(this.cropAreaContainer, ACTIVE_CLASS);
             document.removeEventListener('mousemove', this.onCropResize);
             document.removeEventListener('mouseup', this.onStopCropResize);
-
             document.removeEventListener('touchmove', this.onCropResize);
             document.removeEventListener('touchend', this.onStopCropResize);
+
             this.cropAreaContainer.style.transition = 'all 0.09s linear';
             this.imageObj.style.transition = 'transform 0.1s linear';
+
             if (!this.cropActionTriggered) {
                 return;
             }
 
             this.cropActionTriggered = false;
-
-            // are we zooming out?
-            // TODO: implement this
-            if (this.zoomOut) {
-                this.zoomOut = false;
-                this.croppingArea.scale = {
-                    width: this.croppingArea.width / this.image.width,
-                    height: this.croppingArea.height / this.image.height,
-                    top: this.croppingArea.position.top / this.image.height,
-                    left: this.croppingArea.position.left / this.image.width
-                };
-            } else {}
-            //this.zoomInImage();
-
-
-            //this.drawImage();
-        }
-    }, {
-        key: 'zoomInImage',
-        value: function zoomInImage() {
-
-            // get aspect ratio of to-be-resized crop area
-            var scaleRatio = (0, _utils.calculateAspectRatioFit)(this.croppingArea.width, this.croppingArea.height, this.outerContainer.width, this.outerContainer.height, this.image.rotated, EDITOR_GUTTER);
-
-            var scale = this.image.transform.scale * scaleRatio.ratio;
-
-            if (scale >= this.image.maxRatio) {
-                return;
-            }
-            var translateY = -1 * (this.croppingArea.position.top * scaleRatio.ratio) + this.image.transform.translateY * scaleRatio.ratio;
-            var translateX = -1 * (this.croppingArea.position.left * scaleRatio.ratio) + this.image.transform.translateX * scaleRatio.ratio;
-
-            this.transformMatrices = _extends({}, (0, _utils.createTransformMatrix)(this.transformMatrices.transformMatrix, this.transformMatrices.inverseTransformMatrix,
-            // play with this
-            translateX, translateY, scale, this.image.transform.radians));
-
-            this.imageObj.style.transform = 'matrix(    \n            ' + this.transformMatrices.transformMatrix[0] + ', \n            ' + this.transformMatrices.transformMatrix[1] + ', \n            ' + this.transformMatrices.transformMatrix[2] + ', \n            ' + this.transformMatrices.transformMatrix[3] + ', \n            ' + this.transformMatrices.transformMatrix[4] + ', \n            ' + this.transformMatrices.transformMatrix[5] + ')';
-
-            this.image.width = this.image.width * scaleRatio.ratio;
-            this.image.height = this.image.height * scaleRatio.ratio;
-
-            this.croppingArea.maxDimensions = {
-                width: this.image.width >= this.outerContainer.width ? this.outerContainer.width : this.image.width,
-                height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
-            };
-
-            this.croppingArea.width = scaleRatio.width >= this.croppingArea.maxDimensions.width ? this.croppingArea.maxDimensions.width : scaleRatio.width;
-            this.croppingArea.height = scaleRatio.height >= this.croppingArea.maxDimensions.height ? this.croppingArea.maxDimensions.height : scaleRatio.height;
-
-            this.croppingArea.position.top = 0;
-            this.croppingArea.position.left = 0;
-
-            this.cropAreaContainer.style.left = this.croppingArea.position.left + 'px';
-            this.cropAreaContainer.style.top = this.croppingArea.position.top + 'px';
-            this.cropAreaContainer.style.width = this.croppingArea.width + 'px';
-            this.cropAreaContainer.style.height = this.croppingArea.height + 'px';
-
             this.croppingArea.scale = {
                 width: this.croppingArea.width / this.image.width,
                 height: this.croppingArea.height / this.image.height,
@@ -771,13 +636,94 @@ var ImageEditor = function () {
                 left: this.croppingArea.position.left / this.image.width
             };
 
+            this.croppingArea.delta.top = this.croppingArea.position.top - this.croppingArea.delta.top;
+            this.croppingArea.delta.right = this.croppingArea.position.right - this.croppingArea.delta.right;
+            this.croppingArea.delta.bottom = this.croppingArea.position.bottom - this.croppingArea.delta.bottom;
+            this.croppingArea.delta.left = this.croppingArea.position.left - this.croppingArea.delta.left;
+
+            console.log(this.croppingArea.delta);
+
+            // are we zooming out?
+            // TODO: implement this
+            if (this.zoomOut) {
+                this.zoomOut = false;
+            } else {
+                this.zoomInImage();
+            }
+
+            //this.drawImage();
+        }
+    }, {
+        key: 'zoomInImage',
+        value: function zoomInImage() {
+
+            var scaleRatio = void 0; // for the image
+            var anotherScaleRatio = void 0; // for the cropping area
+
+            // get aspect ratio for the original image
+            scaleRatio = (0, _utils.calculateAspectRatioFit)(this.croppingArea.width, this.croppingArea.height, this.image.width * this.image.transform.scale, this.image.height * this.image.transform.scale, this.image.rotated, 1);
+            console.log('scaleRatio', scaleRatio);
+
+            // now we want the scale ratio for the cropping area  
+            anotherScaleRatio = (0, _utils.calculateAspectRatioFit)(scaleRatio.width, scaleRatio.height, this.outerContainer.width, this.outerContainer.height, this.image.rotated, EDITOR_GUTTER);
+            console.log('anotherScaleRatio', anotherScaleRatio);
+
+            // apply the initial dimensions to the image      
+            this.image.width = this.image.width * scaleRatio.ratio;
+            this.image.height = this.image.height * scaleRatio.ratio;
+
+            this.imageObj.width = this.image.width;
+            this.imageObj.height = this.image.height;
+
+            // apply them to the cropping area
+            this.croppingArea.width = anotherScaleRatio.width;
+            this.croppingArea.height = anotherScaleRatio.height;
+
+            // center coords of container
+            var outerContainerCenterX = this.outerContainer.width / 2;
+            var outerContainerCenterY = this.outerContainer.height / 2;
+
+            var newPositionX = outerContainerCenterX - this.croppingArea.width / 2;
+            var newPositionY = outerContainerCenterY - this.croppingArea.height / 2;
+
+            this.croppingArea.position = {
+                top: newPositionY,
+                right: newPositionX + this.croppingArea.width,
+                bottom: newPositionY + this.croppingArea.height,
+                left: newPositionX
+            };
+
+            var translateX = this.image.transform.translateX - -1 * (this.croppingArea.delta.left + this.croppingArea.delta.right) / 2;
+            var translateY = this.image.transform.translateY - -1 * (this.croppingArea.delta.top + this.croppingArea.delta.bottom) / 2;
+            console.log('translateY', (this.croppingArea.delta.top + this.croppingArea.delta.bottom) / 2);
+
             this.image.transform = Object.assign({}, this.image.transform, {
                 translateX: translateX,
                 translateY: translateY,
-                scale: scale
+                scale: this.image.transform.scale * anotherScaleRatio.ratio
             });
 
-            this.drawImage();
+            this.croppingArea.delta = _extends({}, this.croppingArea.position);
+
+            this.croppingArea.boundary = _extends({}, this.croppingArea.position);
+
+            // set the image transform matrix
+            this.transformMatrices = _extends({}, (0, _utils.createTransformMatrix)(this.transformMatrices.transformMatrix, this.transformMatrices.inverseTransformMatrix, this.image.transform.translateX, this.image.transform.translateY, this.image.transform.scale, this.image.transform.radians));
+
+            // apply the matrix to the image 
+            this.imageObj.style.transform = 'matrix(    \n        ' + this.transformMatrices.transformMatrix[0] + ', \n        ' + this.transformMatrices.transformMatrix[1] + ', \n        ' + this.transformMatrices.transformMatrix[2] + ', \n        ' + this.transformMatrices.transformMatrix[3] + ', \n        ' + this.transformMatrices.transformMatrix[4] + ', \n        ' + this.transformMatrices.transformMatrix[5] + ')';
+
+            // resize the cropping area
+            this.cropAreaContainer.style.left = this.croppingArea.position.left + 'px';
+            this.cropAreaContainer.style.top = this.croppingArea.position.top + 'px';
+            this.cropAreaContainer.style.width = this.croppingArea.width + 'px';
+            this.cropAreaContainer.style.height = this.croppingArea.height + 'px';
+
+            // reset the cropping area's limits
+            this.croppingArea.maxDimensions = {
+                width: anotherScaleRatio.width >= this.outerContainer.width ? this.outerContainer.width : anotherScaleRatio.width,
+                height: anotherScaleRatio.height >= this.outerContainer.height ? this.outerContainer.height : anotherScaleRatio.height
+            };
         }
 
         // TODO: zoom out when pulling the draggable corners
@@ -810,42 +756,52 @@ var ImageEditor = function () {
             this.outerContainer.width = this.imageEditorContainer.offsetWidth;
             this.outerContainer.height = this.imageEditorContainer.offsetHeight;
 
-            var scaleRatio = void 0;
+            var scaleRatio = void 0; // for the image
+            var anotherScaleRatio = void 0; // for the cropping area
 
             // if nothing has been touched, size the image to the workspace
             if (!this.croppingArea.touched) {
-                // get aspect ratio
-                scaleRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.outerContainer.width, this.outerContainer.height, this.image.rotated, EDITOR_GUTTER);
+                // get aspect ratio for the original image
+                scaleRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.outerContainer.width, this.outerContainer.height, this.image.rotated, 1);
+
+                // now we want the scale ratio for the cropping area  
+                anotherScaleRatio = (0, _utils.calculateAspectRatioFit)(scaleRatio.width, scaleRatio.height, this.outerContainer.width, this.outerContainer.height, this.image.rotated, EDITOR_GUTTER);
 
                 // apply the initial dimensions to the image      
                 this.image.width = scaleRatio.width;
                 this.image.height = scaleRatio.height;
-                this.image.transform.scale = scaleRatio.ratio;
+
+                this.imageObj.width = this.image.width;
+                this.imageObj.height = this.image.height;
+
+                // save this so we can use it for later transformations/zooms
+                this.image.transform.scale = anotherScaleRatio.ratio;
 
                 // apply them to the cropping area
-                this.croppingArea.height = this.image.height;
-                this.croppingArea.width = this.image.width;
+                this.croppingArea.height = anotherScaleRatio.width;
+                this.croppingArea.width = anotherScaleRatio.height;
 
                 // center coords of container
                 var outerContainerCenterX = this.outerContainer.width / 2;
                 var outerContainerCenterY = this.outerContainer.height / 2;
-                var imageHalfWidth = this.croppingArea.width / 2;
-                var imageHalfHeight = this.croppingArea.height / 2;
-                var newPositionX = outerContainerCenterX - imageHalfWidth;
-                var newPositionY = outerContainerCenterY - imageHalfHeight;
+
+                var newPositionX = outerContainerCenterX - this.croppingArea.width / 2;
+                var newPositionY = outerContainerCenterY - this.croppingArea.height / 2;
 
                 this.croppingArea.position = {
                     top: newPositionY,
-                    right: newPositionX + this.image.width,
-                    bottom: newPositionY + this.image.height,
+                    right: newPositionX + this.croppingArea.width,
+                    bottom: newPositionY + this.croppingArea.height,
                     left: newPositionX
                 };
+
+                this.croppingArea.delta = _extends({}, this.croppingArea.position);
 
                 this.croppingArea.boundary = _extends({}, this.croppingArea.position);
 
                 this.image.transform = Object.assign({}, this.image.transform, {
-                    translateX: -1 * (this.imageObj.naturalWidth - this.image.width) / 2 + newPositionX,
-                    translateY: -1 * (this.imageObj.naturalHeight - this.image.height) / 2 + newPositionY
+                    translateX: outerContainerCenterX - scaleRatio.width / 2,
+                    translateY: 0
                 });
 
                 // else the ratio we care about is the resized cropping area 
@@ -858,17 +814,14 @@ var ImageEditor = function () {
 
                 this.croppingArea.width = this.croppingArea.scale.width * this.image.width;
                 this.croppingArea.height = this.croppingArea.scale.height * this.image.height;
-                this.croppingArea.position.top = this.croppingArea.scale.top * this.image.height;
-                this.croppingArea.position.left = this.croppingArea.scale.left * this.image.width;
-            }
 
-            // TODO: this is not exactly right. 
-            // translateX is constantly updated, so we need to apply the correct ratio when scaling
-            // haven't worked that out yet  
-            // this.image.transform = Object.assign( {}, this.image.transform, {
-            //     translateX: this.image.transform.translateX * scaleRatio.ratio,
-            //     translateY: this.image.transform.translateY *  scaleRatio.ratio
-            // } );
+                this.croppingArea.position = {
+                    top: this.croppingArea.scale.top * this.image.height,
+                    right: this.croppingArea.scale.left * this.image.width + this.croppingArea.width,
+                    bottom: this.croppingArea.scale.top * this.image.height + this.croppingArea.height,
+                    left: this.croppingArea.scale.left * this.image.width
+                };
+            }
 
             // set the image transform matrix
             this.transformMatrices = _extends({}, (0, _utils.createTransformMatrix)(this.transformMatrices.transformMatrix, this.transformMatrices.inverseTransformMatrix, this.image.transform.translateX, this.image.transform.translateY, this.image.transform.scale, this.image.transform.radians));
@@ -884,8 +837,8 @@ var ImageEditor = function () {
 
             // reset the cropping area's limits
             this.croppingArea.maxDimensions = {
-                width: this.image.width >= this.outerContainer.width ? this.outerContainer.width : this.image.width,
-                height: this.image.height >= this.outerContainer.height ? this.outerContainer.height : this.image.height
+                width: anotherScaleRatio.width >= this.outerContainer.width ? this.outerContainer.width : anotherScaleRatio.width,
+                height: anotherScaleRatio.height >= this.outerContainer.height ? this.outerContainer.height : anotherScaleRatio.height
             };
 
             // draw to canvas

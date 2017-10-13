@@ -2,6 +2,8 @@
 
 *Very early stage of work in progress.*
 
+`npm start`
+`npm run webpack`
 
 ## Aim
 
