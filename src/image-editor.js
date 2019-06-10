@@ -598,8 +598,7 @@ export default class ImageEditor {
             this.image.height * this.image.transform.scale,
             this.image.rotated,
             1 );
-            console.log('scaleRatio', scaleRatio);
-            
+
         // now we want the scale ratio for the cropping area  
         anotherScaleRatio = calculateAspectRatioFit(
           scaleRatio.width,
@@ -779,7 +778,7 @@ export default class ImageEditor {
 
             this.image.transform = Object.assign( {}, this.image.transform, {
                 translateX: outerContainerCenterX - (scaleRatio.width / 2),
-                translateY: 0
+				translateY: outerContainerCenterY - (scaleRatio.height / 2),
             } );
 
         // else the ratio we care about is the resized cropping area 

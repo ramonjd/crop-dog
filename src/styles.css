@@ -32,7 +32,9 @@ li {
 }
 
 .image-editor__workspace {
+	/*
     position:relative;
+	*/
 }
 
 .image-editor__container-loading .image-editor__workspace {
