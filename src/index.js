@@ -1,8 +1,8 @@
-import Editor from './editor';
+import Editor from './image-editor';
 
 window.imageEditor = new Editor(
     {
-        imagePath: 'http://localhost:8888/src/amsler.jpg',
+        imagePath: 'http://localhost:8888/src/lamda-lamda-lamda.jpg',
         imageAltText: 'A village after dark',
         onWorkSpaceUpdated
     },
@@ -22,30 +22,33 @@ function onWorkSpaceUpdated( state ) {
 
     const template = `
         <li>
-            <var>Original image dimensions</var>
+            <var>App container dimensions</var>
             <samp>
-                ${ state.original.width }
-                x ${ state.original.height }
+                ${ state.appContainer.width } x ${ state.appContainer.height }
             </samp>
         </li>
-          <li>
-            <var>Scaled image dimensions</var>
+         <li>
+            <var>Image editor container dimensions</var>
             <samp>
-                ${ state.cropped.maxDimensions.width }
-                x ${ state.cropped.maxDimensions.height }
+                ${ state.imageEditorContainer.width } x ${ state.imageEditorContainer.height }
             </samp>
         </li>
         <li>
-            <var>Cropped dimensions</var>
+            <var>Original image dimensions</var>
             <samp>
-                ${state.cropped.width} x ${state.cropped.height}
+                ${ state.image.originalWidth } x ${ state.image.originalHeight  }
             </samp>
         </li>
-        <li><var>Cropped coordinates</var> <samp>TBD</samp></li>
-
-        <li><var>Rotated</var> <samp>${ state.cropped.rotated }</samp></li>
-
-        <li><var>Ratio to original image</var> <samp>TBD</samp></li>
+		<li>
+			<var>Scaled image dimensions</var>
+			<samp>
+				${ state.image.width } x ${ state.image.height }
+			</samp>
+		</li>
+        <li>
+			<var>Ratio to original image</var>
+			<samp>${ state.image.ratio }</samp>
+        </li>
     `;
 
     document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;

@@ -6,7 +6,7 @@
 html, body {
     height: 100%;
     margin: 0;
-} 
+}
 body {
     background: #ccc;
 }
@@ -19,11 +19,16 @@ li {
 /* ============================= IMAGE EDITOR */
 .image-editor__container {
     outline: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+	height: 100%;
+	width: 100%;
+	margin: 0 auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-color: black;
+	overflow: hidden;
 }
 
 .image-editor__container-loading {
@@ -32,9 +37,15 @@ li {
 }
 
 .image-editor__workspace {
-	/*
-    position:relative;
-	*/
+	background-color: black;
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	top: 0;
+	z-index: 0;
+	outline: none;
 }
 
 .image-editor__container-loading .image-editor__workspace {
@@ -42,7 +53,9 @@ li {
 }
 
 .image-editor__canvas-workspace {
-    visibility: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 .image-editor__image-layer {
@@ -53,6 +66,7 @@ li {
     /* transition: transform 0.1s linear; */
     /* transform-origin: 0 0; */
     transform: translateZ(0);
+	z-index: -1;
 }
 
 .image-editor__container-loading .image-editor__image-layer {
@@ -61,8 +75,8 @@ li {
 
 .image-editor__crop-container  {
     position: absolute;
-      top: 0;
-      left: 0;
+	top: 0;
+	left: 0;
     z-index: 1;
     cursor: pointer;
     display: flex;
@@ -140,28 +154,28 @@ li {
     top: 0;
     left: 0;
     border-width: 6px 0 0 6px;
-    cursor: nw-resize;
+	cursor: nwse-resize;
 }
 
 .image-editor__draggable-corner-sw {
     bottom: 0;
     left: 0;
     border-width: 0 0 6px 6px;
-    cursor: sw-resize;
+	cursor: nesw-resize;
 }
 
 .image-editor__draggable-corner-ne {
     top: 0;
     right: 0;
     border-width: 6px 6px 0 0;
-    cursor: ne-resize;
+    cursor: nesw-resize;
 }
 
 .image-editor__draggable-corner-se {
     bottom: 0;
     right: 0;
     border-width: 0 6px 6px 0;
-    cursor: se-resize;
+	cursor: nwse-resize;
 }
 
 /* ============================= ANIMATIONS */
@@ -185,9 +199,14 @@ li {
 }
 
 .media-image-editor__canvas-container {
-    height: 100%;
-    width: 100%;
-    position: absolute;
+	transform: translateZ(0);
+	background: #fff;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 300;
 }
 
 /* ============================= DEBUG */
@@ -201,13 +220,18 @@ li {
     padding: 0;
     box-sizing: border-box;
     border: 10px solid rgba( 255, 255, 255, 0.5 );
-    width: 200px;
+    width: 300px;
 }
 
 .media-image-editor_debug-values {
     color: white;
-    font-size: .8em;
+    font-size: 1em;
     padding: 10px;
+}
+
+.media-image-editor_debug-values var,
+.media-image-editor_debug-values samp{
+	display: block;
 }
 
 .media-image-editor_debug__preview-container {
