@@ -2,7 +2,7 @@ import Editor from './image-editor';
 
 window.imageEditor = new Editor(
     {
-        imagePath: 'http://localhost:8888/src/lamda-lamda-lamda.jpg',
+        imagePath: 'http://localhost:8888/src/amsler.jpg',
         imageAltText: 'A village after dark',
         onWorkSpaceUpdated
     },
@@ -51,7 +51,8 @@ function onWorkSpaceUpdated( state ) {
         </li>
     `;
 
-    document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
+    //document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
+    //document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
 
 }
 

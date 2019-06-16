@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/ramonjd/crop-dog#readme",
   "dependencies": {
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "rematrix": "^0.3.0"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

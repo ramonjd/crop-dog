@@ -63,8 +63,7 @@ li {
     pointer-events: none;
     position: absolute;
     display: block;
-    /* transition: transform 0.1s linear; */
-    /* transform-origin: 0 0; */
+	transform-origin: center;
     transform: translateZ(0);
 	z-index: -1;
 }

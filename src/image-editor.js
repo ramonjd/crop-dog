@@ -1,3 +1,5 @@
+import * as Rematrix from 'rematrix';
+
 import {
     noop,
     createElement,
@@ -19,6 +21,7 @@ import {
 	EDITOR_GUTTER,
 	DEBUG,
 } from './constants';
+
 
 
 // https://codepen.io/anon/pen/YQJmMr
@@ -70,6 +73,12 @@ export default class ImageEditor {
 				originalHeight: 0,
 				rotated: false,
 				ratio: 1,
+				left: 0,
+				top: 0,
+				centerX: 0,
+				centerY: 0,
+				originX: 0,
+				originY: 0,
 			},
 			// The image container
 			imageEditorContainer: {
@@ -81,6 +90,11 @@ export default class ImageEditor {
 			appContainer: {
 				width: 0,
 				height: 0,
+			},
+			// center of app container
+			center: {
+				x: 0,
+				y: 0,
 			}
         };
 
@@ -116,7 +130,11 @@ export default class ImageEditor {
         } );
 
         this.canvasWorkspace = new CanvasWorkspace();
-        this.cropContainer = new CropContainer();
+        this.cropContainer = new CropContainer( {
+			appContainer: this.appContainer,
+			imageObj: this.imageObj,
+			canvasWorkspace: this.canvasWorkspace,
+		} );
 
         // this is the workspace wrapper
         this.imageEditorWorkspace = createElement( {
@@ -154,6 +172,8 @@ export default class ImageEditor {
     onImageLoaded() {
 		this.state.image.originalWidth = this.imageObj.naturalWidth;
 		this.state.image.originalHeight = this.imageObj.naturalHeight;
+		this.state.appContainer.width = this.appContainer.offsetWidth;
+		this.state.appContainer.height = this.appContainer.offsetHeight;
 
         // initial update of coordinates
         this.updateWorkspace();
@@ -188,54 +208,109 @@ export default class ImageEditor {
         // reset lastTimeStamp minus 1 frame in ms ( to adjust for frame rates other than 60fps )
         this.lastTimestamp = now - ( elapsedTime % this.frameRateInterval );
 
-        // cache the container offset width
-        this.state.appContainer.width = this.appContainer.offsetWidth;
-        this.state.appContainer.height = this.appContainer.offsetHeight;
 
 
-        let scaleRatio; // for the image
+
 
 		// get aspect ratio for the original image based on container size
-		scaleRatio = calculateAspectRatioFit(
+		const imageAspectRatio = calculateAspectRatioFit(
 				this.imageObj.naturalWidth,
 				this.imageObj.naturalHeight,
-				this.state.appContainer.width,
-				this.state.appContainer.height,
+				this.appContainer.offsetWidth,
+				this.appContainer.offsetHeight,
 				this.state.image.rotated,
 			1 );
 
 		// apply the initial dimensions to the image
-		this.state.image.width = scaleRatio.width;
-		this.state.image.height = scaleRatio.height;
-		this.state.image.ratio = scaleRatio.ratio;
+		this.state.image.width = imageAspectRatio.width;
+		this.state.image.height = imageAspectRatio.height;
+		this.state.image.ratio = imageAspectRatio.ratio;
 
 
 		this.imageObj.width = this.state.image.width;
 		this.imageObj.height = this.state.image.height;
 
 
+
+
+
+
+
+		/*
+			Matrix:
+				Center the image
+		*/
+
+		// center coords of container
+		// new center - old centre
+		const appContainerCenterX = this.appContainer.offsetWidth / 2;
+		const appContainerCenterY = this.appContainer.offsetHeight / 2;
+		const imageCenterTranslateX = appContainerCenterX - ( this.state.image.width / 2 );
+		const imageCenterTranslateY = appContainerCenterY - ( this.state.image.height / 2 );
+
+		const imageObjStyle = getComputedStyle( this.imageObj ).transform;
+		const transform = Rematrix.parse( imageObjStyle );
+		const r1 = Rematrix.translateX( imageCenterTranslateX - this.state.image.originX );
+		const r2 = Rematrix.translateY( imageCenterTranslateY - this.state.image.originY );
+		//const r3 = Rematrix.scale( cropContainerAspectRatio.ratio );
+		const product = [ transform, r1, r2 ].reduce( Rematrix.multiply );
+		this.imageObj.style.transform = Rematrix.toString( product );
+		this.state.image.originX = imageCenterTranslateX;
+		this.state.image.originY = imageCenterTranslateY;
+		this.state.image.left = appContainerCenterX - ( this.state.image.width / 2 );
+		this.state.image.top = appContainerCenterY - ( this.state.image.height / 2 );
+
+		/*
+			Crop container:
+
+		*/
+		// now we want the scale ratio for the cropping area
+		// so we get the dimensions of the scaled image
+		// we're scaling the image based on the container dimensions
+		// we want to the crop container to fit the outerContainer, but be no bigger than the image
+		const cropContainerState = this.cropContainer.getState();
+		const cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
+		const cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
+		const cropContainerLeft = cropContainerState.initialized ? cropContainerState.left : this.state.image.left;
+		const cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
+
+
+
+
+
+
 		this.cropContainer.update( {
-			top: 0,
-			left: 0,
-			width: this.state.image.width,
-			height: this.state.image.height,
+			left: cropContainerLeft,
+			top: cropContainerTop,
+			width: cropContainerWidth,
+			height: cropContainerHeight,
 		} );
 
+		// cache the container offset width
+		this.state.appContainer.width = this.appContainer.offsetWidth;
+		this.state.appContainer.height = this.appContainer.offsetHeight;
+		/*
+			Canvas update:
 
-        // draw to canvas
+		*/
         // TODO: we don't actually have to do this at all until the final save
-        this.canvasWorkspace.drawImage(
-        	this.imageObj,
-			this.state.appContainer.width,
-			this.state.appContainer.height,
-			this.state.image.width,
-			this.state.image.height
-		);
+        this.canvasWorkspace.drawImage( {
+			imageObj: this.imageObj,
+			canvasWidth: this.state.appContainer.width,
+			canvasHeight: this.state.appContainer.height,
+			imageWidth: this.imageObj.naturalWidth,
+			imageHeight: this.imageObj.naturalHeight,
+			imageX: 0,
+			imageY: 0,
+			drawWidth: cropContainerWidth,
+			drawHeight: cropContainerHeight,
+			drawX: cropContainerLeft,
+			drawY: cropContainerTop,
+		} );
 
 		if ( DEBUG ) {
 			this.onWorkSpaceUpdated( this.state );
 		}
-
     }
 
 
@@ -250,6 +325,5 @@ export default class ImageEditor {
     // destroy () clear container and remove all event listeners
     // getOriginalImage() // returns original image
     // getWorkingImage() // returns image at current crop state
-
 
 }
