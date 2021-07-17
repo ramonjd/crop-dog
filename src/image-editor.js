@@ -284,6 +284,8 @@ export default class ImageEditor {
 			top: cropContainerTop,
 			width: cropContainerWidth,
 			height: cropContainerHeight,
+			maxWidth: this.state.image.height,
+			maxHeight: this.state.image.height,
 		} );
 
 		// cache the container offset width

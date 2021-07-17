@@ -721,7 +721,9 @@ var ImageEditor = function () {
         left: cropContainerLeft,
         top: cropContainerTop,
         width: cropContainerWidth,
-        height: cropContainerHeight
+        height: cropContainerHeight,
+        maxWidth: this.state.image.height,
+        maxHeight: this.state.image.height
       });
 
       // cache the container offset width
@@ -1403,7 +1405,9 @@ var CropContainer = function () {
 			var top = _ref2.top,
 			    left = _ref2.left,
 			    width = _ref2.width,
-			    height = _ref2.height;
+			    height = _ref2.height,
+			    maxWidth = _ref2.maxWidth,
+			    maxHeight = _ref2.maxHeight;
 
 			/*		this.element.width = anotherScaleRatio.width > this.imageObj.width ? this.imageObj.width : anotherScaleRatio.width;
    		this.element.height = anotherScaleRatio.height > this.imageObj.height ? this.imageObj.height : anotherScaleRatio.height;	*/
@@ -1419,6 +1423,10 @@ var CropContainer = function () {
 			this.element.style.height = height + 'px';
 
 			this.state = _extends({}, this.state, {
+				maxDimensions: {
+					width: maxWidth,
+					height: maxHeight
+				},
 				width: width,
 				height: height,
 				top: top,
@@ -1548,17 +1556,18 @@ var CropContainer = function () {
 			}
 
 			// all this is about ensuring there is no 'sticking' at the extremes
-			/*		height = isNaN(height) ? this.state.height : height;
-   		height = height >= this.state.maxDimensions.height ? this.state.maxDimensions.height : height;
-   		height = height <= this.state.minDimensions.height ? this.state.minDimensions.height : height;
-   		width = width >= this.state.maxDimensions.width ? this.state.maxDimensions.width : width;
-   		width = width <= this.state.minDimensions.width ? this.state.minDimensions.width : width;
-   		left = left >= this.state.boundary.right - this.state.minDimensions.width
-   			? this.state.boundary.right - this.state.minDimensions.width : left;
-   		left = left <= this.state.boundary.left ? this.state.boundary.left : left;
-   		top = top >= this.state.boundary.bottom - this.state.minDimensions.height
-   			? this.state.boundary.bottom - this.state.minDimensions.height : top;
-   		top = (top <= this.state.boundary.top || isNaN(top)) ? this.state.boundary.top : top;*/
+			height = isNaN(height) ? this.state.height : height;
+			height = height >= this.state.maxDimensions.height ? this.state.maxDimensions.height : height;
+			height = height <= this.state.minDimensions.height ? this.state.minDimensions.height : height;
+			width = width >= this.state.maxDimensions.width ? this.state.maxDimensions.width : width;
+			width = width <= this.state.minDimensions.width ? this.state.minDimensions.width : width;
+
+			/*		left = left >= this.state.right - this.state.minDimensions.width
+   			? this.state.right - this.state.minDimensions.width : left;
+   		left = left <= this.state.left ? this.state.left : left;
+   		top = top >= this.state.maxDimensions.height - this.state.minDimensions.height
+   			? this.state.maxDimensions.height - this.state.minDimensions.height : top;
+   		top = (top <= this.state.top || isNaN(top)) ? this.state.top : top;*/
 
 			if (this.constrain || event.shiftKey) {
 				height = width / this.imageObj.width * this.imageObj.height;
@@ -1567,7 +1576,7 @@ var CropContainer = function () {
 			var appContainerCenterX = this.appContainer.offsetWidth / 2;
 			var appContainerCenterY = this.appContainer.offsetHeight / 2;
 			var imageLeft = appContainerCenterX - this.imageObj.width / 2;
-			var imageTop = appContainerCenterY - this.imageObj.width / 2;
+			var imageTop = appContainerCenterY - this.imageObj.height / 2;
 
 			imageX = 0 + (left - imageLeft) / imageAspectRatio.ratio;
 			imageY = 0 + (top - imageTop) / imageAspectRatio.ratio;

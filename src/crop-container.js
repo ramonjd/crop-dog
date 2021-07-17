@@ -112,7 +112,7 @@ export default class CropContainer {
 		return this.state;
 	}
 
-	update( { top, left, width, height } ) {
+	update( { top, left, width, height, maxWidth, maxHeight } ) {
 /*		this.element.width = anotherScaleRatio.width > this.imageObj.width ? this.imageObj.width : anotherScaleRatio.width;
 		this.element.height = anotherScaleRatio.height > this.imageObj.height ? this.imageObj.height : anotherScaleRatio.height;	*/
 
@@ -128,6 +128,10 @@ export default class CropContainer {
 
 		this.state = {
 			...this.state,
+			maxDimensions: {
+				width: maxWidth,
+				height: maxHeight,
+			},
 			width,
 			height,
 			top,
@@ -259,17 +263,19 @@ export default class CropContainer {
 		}
 
 		// all this is about ensuring there is no 'sticking' at the extremes
-/*		height = isNaN(height) ? this.state.height : height;
+		height = isNaN(height) ? this.state.height : height;
 		height = height >= this.state.maxDimensions.height ? this.state.maxDimensions.height : height;
 		height = height <= this.state.minDimensions.height ? this.state.minDimensions.height : height;
 		width = width >= this.state.maxDimensions.width ? this.state.maxDimensions.width : width;
 		width = width <= this.state.minDimensions.width ? this.state.minDimensions.width : width;
-		left = left >= this.state.boundary.right - this.state.minDimensions.width
-			? this.state.boundary.right - this.state.minDimensions.width : left;
-		left = left <= this.state.boundary.left ? this.state.boundary.left : left;
-		top = top >= this.state.boundary.bottom - this.state.minDimensions.height
-			? this.state.boundary.bottom - this.state.minDimensions.height : top;
-		top = (top <= this.state.boundary.top || isNaN(top)) ? this.state.boundary.top : top;*/
+
+
+/*		left = left >= this.state.right - this.state.minDimensions.width
+			? this.state.right - this.state.minDimensions.width : left;
+		left = left <= this.state.left ? this.state.left : left;
+		top = top >= this.state.maxDimensions.height - this.state.minDimensions.height
+			? this.state.maxDimensions.height - this.state.minDimensions.height : top;
+		top = (top <= this.state.top || isNaN(top)) ? this.state.top : top;*/
 
 		if ( this.constrain || event.shiftKey ) {
 			height = width / this.imageObj.width * this.imageObj.height;
@@ -279,7 +285,7 @@ export default class CropContainer {
 		const appContainerCenterX = this.appContainer.offsetWidth / 2;
 		const appContainerCenterY = this.appContainer.offsetHeight / 2;
 		const imageLeft = appContainerCenterX - ( this.imageObj.width / 2 );
-		const imageTop = appContainerCenterY - ( this.imageObj.width / 2 );
+		const imageTop = appContainerCenterY - ( this.imageObj.height / 2 );
 
 
 
