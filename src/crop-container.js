@@ -20,7 +20,7 @@ import {
 
 export default class CropContainer {
 
-	constructor( { appContainer, imageObj, canvasWorkspace } ) {
+	constructor( { appContainer, imageObj, canvasWorkspace, onWorkSpaceUpdated } ) {
 		this.state = {
 			// maximum dimensions of the crop tool
 			// crop rectangle cannot be bigger than these values
@@ -58,6 +58,9 @@ export default class CropContainer {
 		this.appContainer = appContainer;
 		this.imageObj = imageObj;
 		this.canvasWorkspace = canvasWorkspace;
+
+		// callbacks
+		this.onWorkSpaceUpdated = onWorkSpaceUpdated;
 
 		this.onStartDragCropArea = this.onStartDragCropArea.bind( this );
 		// this.onDragCropArea = this.onDragCropArea.bind( this );
@@ -112,7 +115,7 @@ export default class CropContainer {
 		return this.state;
 	}
 
-	update( { top, left, width, height, maxWidth, maxHeight } ) {
+	update( { top, left, width, height, maxWidth, maxHeight, imageCoords } ) {
 /*		this.element.width = anotherScaleRatio.width > this.imageObj.width ? this.imageObj.width : anotherScaleRatio.width;
 		this.element.height = anotherScaleRatio.height > this.imageObj.height ? this.imageObj.height : anotherScaleRatio.height;	*/
 
@@ -136,6 +139,7 @@ export default class CropContainer {
 			height,
 			top,
 			left,
+			imageCoords
 		};
 
 	}
@@ -164,6 +168,13 @@ export default class CropContainer {
 			return false;
 		}
 		// otherwise we're free to drag the image
+		// TODO abstract this out to a separate method
+		// this.dragging = true;
+		// this.mousePos = getMousePosition( event, this.appContainer );
+		// this.state.left = this.mousePos.x;
+		// this.state.top = this.mousePos.y;
+
+
 	}
 
 	onStartCropResize ( event ) {
@@ -189,8 +200,8 @@ export default class CropContainer {
 		this.mousePos = getMousePosition( event, this.appContainer );
 		// first check the mouse boundaries
 		// now calculate the new dimensions of the crop area
-		let width, height, left, top, right, bottom, imageX, imageY, drawX, drawY, drawWidth, drawHeight, imageWidth, imageHeight;
-
+		let width, height, left, top, right, bottom, imageX, imageY, drawX, drawY, drawWidth, drawHeight, imageWidth, imageHeight, ignoreResize;
+		
 		const imageAspectRatio = calculateAspectRatioFit(
 			this.imageObj.naturalWidth,
 			this.imageObj.naturalHeight,
@@ -199,53 +210,140 @@ export default class CropContainer {
 			false,
 			1 );
 
+		
+		if ( this.mousePos.x <= this.state.imageCoords.left || 
+			this.mousePos.x >= this.state.imageCoords.right || 
+			this.mousePos.y <= this.state.imageCoords.top || 
+			this.mousePos.y >= this.state.imageCoords.bottom ) {
+			ignoreResize = true;
+		}
+		
 		if ( this.cropEvent.target.classList.contains( `${CSS_NAMESPACE}__draggable-corner-se` ) ) {
-
-			// origin of image scale should be set to the opposite corner of this handle
+			console.log( 'se drag', '');
+				// origin of image scale should be set to the opposite corner of this handle
 			//this.image.transform.origin = [ 'left', 'top' ];
-
-
 
 			width  = this.mousePos.x - this.state.left;
 			height = this.mousePos.y - this.state.top;
 			left = this.state.left;
 			top = this.state.top;
+			right = left + width;
+			bottom = top + height;
+
+			if ( right >= this.state.imageCoords.right ) {
+				width = this.state.imageCoords.right - left;
+			}
+			if ( bottom >= this.state.imageCoords.bottom ) {
+				height = this.state.imageCoords.bottom - top;
+			}
+			if ( ( this.constrain || event.shiftKey) ) {
+				height = width / this.imageObj.width * this.imageObj.height;
+				width = height / this.imageObj.height * this.imageObj.width;
+				// left = this.state.left + this.state.width - width;
+
+				bottom = bottom <= this.state.imageCoords.bottom ? this.state.imageCoords.bottom : this.mousePos.y;
+
+
+			}
 
 		}
 
 		if ( this.cropEvent.target.classList.contains( `${CSS_NAMESPACE}__draggable-corner-sw` ) ) {
+			console.log( 'sw drag', '');
 
 			// origin of image scale should be set to the opposite corner of this handle
 			//this.image.transform.origin = [ 'right', 'top' ];
+
 
 			width  = this.state.width - ( this.mousePos.x - this.state.left );
 			left = this.mousePos.x;
 			height = this.mousePos.y - this.state.top;
 			top = this.state.top;
+			bottom = top + height;
+
+
+			if ( width <= this.state.minDimensions.width && left < this.state.imageCoords.right - this.state.minDimensions.width ) {
+				left = this.state.left + this.state.width - this.state.minDimensions.width;
+				width = this.state.minDimensions.width;
+			}
+
+			if ( left >= this.state.imageCoords.right - this.state.minDimensions.width ) {
+				left = this.state.left + this.state.width - this.state.minDimensions.width;
+
+			}
+
+			if ( bottom >= this.state.imageCoords.bottom ) {
+				height = this.state.imageCoords.bottom - top;
+			}
+
+			if ( left <= this.state.imageCoords.left ) {
+				left = this.state.imageCoords.left;
+				width = this.state.width + ( this.state.left - this.state.imageCoords.left );
+
+			}
+			if ( (this.constrain || event.shiftKey)) {
+				height = width / this.imageObj.width * this.imageObj.height;
+				width = height / this.imageObj.height * this.imageObj.width;
+				left = this.state.left + this.state.width - width;
+				bottom = bottom <= this.state.imageCoords.bottom ? this.state.imageCoords.bottom : this.mousePos.y;
+			}
 
 		}
 
 		if ( this.cropEvent.target.classList.contains( `${CSS_NAMESPACE}__draggable-corner-nw` ) ) {
-
+			console.log( 'nw drag', '');
 			// origin of image scale should be set to the opposite corner of this handle
 			//this.image.transform.origin = [ 'right', 'bottom' ];
 
 			width = this.state.width - ( this.mousePos.x - this.state.left );
 			height = this.state.height - ( this.mousePos.y - this.state.top );
 			left = this.mousePos.x;
-			top = this.mousePos.y ;
+			top = this.mousePos.y;
 
 
-
-
-			if ( this.constrain || event.shiftKey ) {
-				top = this.mousePos.y - ( ( width / this.imageObj.width * this.imageObj.height ) - height );
+			if ( width <= this.state.minDimensions.width && left < this.state.imageCoords.right - this.state.minDimensions.width ) {
+				left = this.state.left + this.state.width - this.state.minDimensions.width;
+				width = this.state.minDimensions.width;
 			}
+
+			if ( left >= this.state.imageCoords.right - this.state.minDimensions.width ) {
+				left = this.state.left + this.state.width - this.state.minDimensions.width;
+
+			}
+
+			if ( left <= this.state.imageCoords.left ) {
+				left = this.state.imageCoords.left;
+				width = this.state.width + ( this.state.left - this.state.imageCoords.left );
+
+
+			}
+
+			if ( top <= this.state.imageCoords.top ) {
+				top = this.state.imageCoords.top;
+				height = this.state.bottom - top;
+
+			}
+
+			if ( height <= this.state.minDimensions.height && top > this.state.imageCoords.top ) {
+				height = this.state.minDimensions.height;
+				top = this.state.top + this.state.height - this.state.minDimensions.height;
+
+			}
+
+
+			if ( (this.constrain || event.shiftKey)) {
+				height = width / this.imageObj.width * this.imageObj.height;
+				width = height / this.imageObj.height * this.imageObj.width;
+				left = this.state.left + this.state.width - width;
+				top = this.state.top + this.state.height - height;
+			}
+
+
 
 		}
 
 		if ( this.cropEvent.target.classList.contains( `${CSS_NAMESPACE}__draggable-corner-ne` ) ) {
-
+			console.log( 'ne drag', '');
 			// origin of image scale should be set to the opposite corner of this handle
 			//this.image.transform.origin = [ 'left', 'bottom' ];
 
@@ -253,11 +351,25 @@ export default class CropContainer {
 			height = this.state.height - ( this.mousePos.y - this.state.top );
 			left = this.state.left;
 			top = this.mousePos.y;
+			right = left + width;
 
 
-
+			if ( height <= this.state.minDimensions.height ) {
+				height = this.state.minDimensions.height;
+				top = this.state.top + this.state.height - this.state.minDimensions.height;
+			}
+			if ( top <= this.state.imageCoords.top ) {
+				top = this.state.imageCoords.top;
+				height = this.state.bottom - top;
+			}
+			if ( right >= this.state.imageCoords.right ) {
+				width = this.state.imageCoords.right - left;
+			}
+			if ( bottom >= this.state.imageCoords.bottom ) {
+				height = this.state.imageCoords.bottom - top;
+			}
 			if ( this.constrain || event.shiftKey ) {
-				top = this.mousePos.y - ( (width / this.imageObj.width * this.imageObj.height ) - height );
+				width = height / this.imageObj.height * this.imageObj.width;
 			}
 
 		}
@@ -269,17 +381,19 @@ export default class CropContainer {
 		width = width >= this.state.maxDimensions.width ? this.state.maxDimensions.width : width;
 		width = width <= this.state.minDimensions.width ? this.state.minDimensions.width : width;
 
+		
 
-/*		left = left >= this.state.right - this.state.minDimensions.width
-			? this.state.right - this.state.minDimensions.width : left;
-		left = left <= this.state.left ? this.state.left : left;
-		top = top >= this.state.maxDimensions.height - this.state.minDimensions.height
-			? this.state.maxDimensions.height - this.state.minDimensions.height : top;
-		top = (top <= this.state.top || isNaN(top)) ? this.state.top : top;*/
 
-		if ( this.constrain || event.shiftKey ) {
-			height = width / this.imageObj.width * this.imageObj.height;
-		}
+
+		// left = left >= this.state.right - this.state.minDimensions.width
+		// 	? this.state.right - this.state.minDimensions.width : left;
+		//
+		// left = left <= this.state.left ? this.state.left : left;
+		//
+		// top = top >= this.state.maxDimensions.height - this.state.minDimensions.height
+		// 	? this.state.maxDimensions.height - this.state.minDimensions.height : top;
+		// top = (top <= this.state.top || isNaN(top)) ? this.state.top : top;
+
 
 
 		const appContainerCenterX = this.appContainer.offsetWidth / 2;
@@ -333,18 +447,11 @@ export default class CropContainer {
 		this.cropActionTriggered = true;
 
 
-/*		this.onWorkSpaceUpdated( {
-			image: {
-				...this.image
-			},
-			cropped: {
-				...this.croppingArea,
-			},
-			original: {
-				width: this.image.naturalWidth,
-				height: this.image.naturalHeight,
-			}
-		} );*/
+		if ( DEBUG ) {
+			this.onWorkSpaceUpdated( {
+				...this.getState()
+			} );
+		}
 		this.state.initialized = true;
 		return false;
 

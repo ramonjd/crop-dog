@@ -27,12 +27,6 @@ function onWorkSpaceUpdated( state ) {
                 ${ state.appContainer.width } x ${ state.appContainer.height }
             </samp>
         </li>
-         <li>
-            <var>Image editor container dimensions</var>
-            <samp>
-                ${ state.imageEditorContainer.width } x ${ state.imageEditorContainer.height }
-            </samp>
-        </li>
         <li>
             <var>Original image dimensions</var>
             <samp>
@@ -49,10 +43,29 @@ function onWorkSpaceUpdated( state ) {
 			<var>Ratio to original image</var>
 			<samp>${ state.image.ratio }</samp>
         </li>
+         <li>
+            <var>Image coordinates relative to window</var>
+            <samp>
+                left: ${ state.image.left }, top:  ${ state.image.top  }
+            </samp>
+        </li>
+         <li>
+            <var>Crop container height and width</var>
+            <samp>
+                ${ state.cropContainer.width } x ${ state.cropContainer.height }
+            </samp>
+        </li>
+         <li>
+            <var>Crop container coordinates relative to window</var>
+            <samp>
+                left: ${ state.cropContainer.left }, top:  ${ state.cropContainer.top  },
+                right: ${ state.cropContainer.right }, bottom:  ${ state.cropContainer.bottom  }
+            </samp>
+        </li>
     `;
 
-    //document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
-    //document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
+    document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
+    document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
 
 }
 

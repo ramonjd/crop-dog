@@ -60,11 +60,46 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _imageEditor = __webpack_require__(3);
+
+var _imageEditor2 = _interopRequireDefault(_imageEditor);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.imageEditor = new _imageEditor2.default({
+    imagePath: 'http://localhost:8888/src/amsler.jpg',
+    imageAltText: 'A village after dark',
+    onWorkSpaceUpdated: onWorkSpaceUpdated
+}, document.querySelector('.media-image-editor__canvas-container'));
+
+// DEBUG
+function onWorkSpaceUpdated(state) {
+    //const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
+    //const croppedImageAtag = document.querySelector( '.media-image-editor_debug__preview-container a' );
+    //const previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8 );
+    //croppedImageObj.src = previewImage;
+    //croppedImageObj.width = newImageEditorState.cropped.width;
+    //croppedImageObj.height = newImageEditorState.cropped.height;
+    //croppedImageAtag.href = previewImage;
+
+    var template = '\n        <li>\n            <var>App container dimensions</var>\n            <samp>\n                ' + state.appContainer.width + ' x ' + state.appContainer.height + '\n            </samp>\n        </li>\n        <li>\n            <var>Original image dimensions</var>\n            <samp>\n                ' + state.image.originalWidth + ' x ' + state.image.originalHeight + '\n            </samp>\n        </li>\n\t\t<li>\n\t\t\t<var>Scaled image dimensions</var>\n\t\t\t<samp>\n\t\t\t\t' + state.image.width + ' x ' + state.image.height + '\n\t\t\t</samp>\n\t\t</li>\n        <li>\n\t\t\t<var>Ratio to original image</var>\n\t\t\t<samp>' + state.image.ratio + '</samp>\n        </li>\n         <li>\n            <var>Image coordinates relative to window</var>\n            <samp>\n                left: ' + state.image.left + ', top:  ' + state.image.top + '\n            </samp>\n        </li>\n         <li>\n            <var>Crop container height and width</var>\n            <samp>\n                ' + state.cropContainer.width + ' x ' + state.cropContainer.height + '\n            </samp>\n        </li>\n         <li>\n            <var>Crop container coordinates relative to window</var>\n            <samp>\n                left: ' + state.cropContainer.left + ', top:  ' + state.cropContainer.top + ',\n                right: ' + state.cropContainer.right + ', bottom:  ' + state.cropContainer.bottom + '\n            </samp>\n        </li>\n    ';
+
+    document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
+    document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
+}
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -399,7 +434,7 @@ function getOriginalCoordinatesFromTransformedMatrix(transformMatrix, inverseTra
 }
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -415,41 +450,6 @@ var EDITOR_GUTTER = exports.EDITOR_GUTTER = .7;
 var DEBUG = exports.DEBUG = true;
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _imageEditor = __webpack_require__(3);
-
-var _imageEditor2 = _interopRequireDefault(_imageEditor);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-window.imageEditor = new _imageEditor2.default({
-    imagePath: 'http://localhost:8888/src/amsler.jpg',
-    imageAltText: 'A village after dark',
-    onWorkSpaceUpdated: onWorkSpaceUpdated
-}, document.querySelector('.media-image-editor__canvas-container'));
-
-// DEBUG
-function onWorkSpaceUpdated(state) {
-    //const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
-    //const croppedImageAtag = document.querySelector( '.media-image-editor_debug__preview-container a' );
-    //const previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8 );
-    //croppedImageObj.src = previewImage;
-    //croppedImageObj.width = newImageEditorState.cropped.width;
-    //croppedImageObj.height = newImageEditorState.cropped.height;
-    //croppedImageAtag.href = previewImage;
-
-    var template = '\n        <li>\n            <var>App container dimensions</var>\n            <samp>\n                ' + state.appContainer.width + ' x ' + state.appContainer.height + '\n            </samp>\n        </li>\n         <li>\n            <var>Image editor container dimensions</var>\n            <samp>\n                ' + state.imageEditorContainer.width + ' x ' + state.imageEditorContainer.height + '\n            </samp>\n        </li>\n        <li>\n            <var>Original image dimensions</var>\n            <samp>\n                ' + state.image.originalWidth + ' x ' + state.image.originalHeight + '\n            </samp>\n        </li>\n\t\t<li>\n\t\t\t<var>Scaled image dimensions</var>\n\t\t\t<samp>\n\t\t\t\t' + state.image.width + ' x ' + state.image.height + '\n\t\t\t</samp>\n\t\t</li>\n        <li>\n\t\t\t<var>Ratio to original image</var>\n\t\t\t<samp>' + state.image.ratio + '</samp>\n        </li>\n    ';
-
-    //document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
-    //document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
-}
-
-/***/ }),
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -457,8 +457,10 @@ function onWorkSpaceUpdated(state) {
 
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+	value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -466,7 +468,7 @@ var _rematrix = __webpack_require__(4);
 
 var Rematrix = _interopRequireWildcard(_rematrix);
 
-var _utils = __webpack_require__(0);
+var _utils = __webpack_require__(1);
 
 var _canvasWorkspace = __webpack_require__(5);
 
@@ -476,7 +478,7 @@ var _cropContainer = __webpack_require__(6);
 
 var _cropContainer2 = _interopRequireDefault(_cropContainer);
 
-var _constants = __webpack_require__(1);
+var _constants = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -517,256 +519,274 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * */
 
 var ImageEditor = function () {
-  function ImageEditor(props, container) {
-    _classCallCheck(this, ImageEditor);
+	function ImageEditor(props, container) {
+		var _this = this;
 
-    // cache of computed image properties
-    this.state = {
-      image: {
-        width: 0,
-        height: 0,
-        originalWidth: 0,
-        originalHeight: 0,
-        rotated: false,
-        ratio: 1,
-        left: 0,
-        top: 0,
-        centerX: 0,
-        centerY: 0,
-        originX: 0,
-        originY: 0
-      },
-      // The image container
-      imageEditorContainer: {
-        width: 0,
-        height: 0
-      },
+		_classCallCheck(this, ImageEditor);
 
-      // The app container
-      appContainer: {
-        width: 0,
-        height: 0
-      },
-      // center of app container
-      center: {
-        x: 0,
-        y: 0
-      }
-    };
+		// cache of computed image properties
+		this.state = {
+			image: {
+				width: 0,
+				height: 0,
+				originalWidth: 0,
+				originalHeight: 0,
+				rotated: false,
+				ratio: 1,
+				left: 0,
+				top: 0,
+				centerX: 0,
+				centerY: 0,
+				originX: 0,
+				originY: 0
+			},
+			// The image container
+			imageEditorContainer: {
+				width: 0,
+				height: 0
+			},
 
-    // this will be an ajax call
-    this.imagePath = props.imagePath;
+			// The app container
+			appContainer: {
+				width: 0,
+				height: 0
+			},
+			// center of app container
+			center: {
+				x: 0,
+				y: 0
+			}
+		};
 
-    // append elements
-    this.appContainer = container;
+		// this will be an ajax call
+		this.imagePath = props.imagePath;
 
-    // bind class methods to this
-    this.onImageLoaded = this.onImageLoaded.bind(this);
-    this.updateWorkspace = this.updateWorkspace.bind(this);
-    this.onWindowResize = this.onWindowResize.bind(this);
+		// append elements
+		this.appContainer = container;
 
-    // the image to manipulate
-    this.imageObj = new Image();
-    this.imageObj.setAttribute('crossOrigin', 'anonymous');
-    this.imageObj.className = _constants.CSS_NAMESPACE + '__image-layer';
-    this.imageObj.setAttribute('alt', this.imageAltText || _constants.IMAGE_ALT_TEXT);
-    this.imageObj.onload = this.onImageLoaded;
-    this.imageObj.onerror = _utils.noop;
+		// bind class methods to this
+		this.onImageLoaded = this.onImageLoaded.bind(this);
+		this.updateWorkspace = this.updateWorkspace.bind(this);
+		this.onWindowResize = this.onWindowResize.bind(this);
 
-    // create elements
-    // this is the offPage workspace
-    // it takes the transformed image, and calculates the positions and ratios required to create output image
-    // https://www.html5rocks.com/en/tutorials/canvas/performance/#toc-pre-render
-    // https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
-    this.canvasWorkspace = (0, _utils.createElement)({
-      tagName: 'canvas',
-      className: _constants.CSS_NAMESPACE + '__canvas-workspace'
-    });
+		// the image to manipulate
+		this.imageObj = new Image();
+		this.imageObj.setAttribute('crossOrigin', 'anonymous');
+		this.imageObj.className = _constants.CSS_NAMESPACE + '__image-layer';
+		this.imageObj.setAttribute('alt', this.imageAltText || _constants.IMAGE_ALT_TEXT);
+		this.imageObj.onload = this.onImageLoaded;
+		this.imageObj.onerror = _utils.noop;
 
-    this.canvasWorkspace = new _canvasWorkspace2.default();
-    this.cropContainer = new _cropContainer2.default({
-      appContainer: this.appContainer,
-      imageObj: this.imageObj,
-      canvasWorkspace: this.canvasWorkspace
-    });
+		// create elements
+		// this is the offPage workspace
+		// it takes the transformed image, and calculates the positions and ratios required to create output image
+		// https://www.html5rocks.com/en/tutorials/canvas/performance/#toc-pre-render
+		// https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas
+		this.canvasWorkspace = (0, _utils.createElement)({
+			tagName: 'canvas',
+			className: _constants.CSS_NAMESPACE + '__canvas-workspace'
+		});
 
-    // this is the workspace wrapper
-    this.imageEditorWorkspace = (0, _utils.createElement)({
-      tagName: 'div',
-      className: _constants.CSS_NAMESPACE + '__workspace',
-      children: [this.imageObj, this.canvasWorkspace.getElement(), this.cropContainer.getElement()]
-    });
+		this.canvasWorkspace = new _canvasWorkspace2.default();
+		this.cropContainer = new _cropContainer2.default({
+			appContainer: this.appContainer,
+			imageObj: this.imageObj,
+			canvasWorkspace: this.canvasWorkspace,
+			onWorkSpaceUpdated: function onWorkSpaceUpdated(croppingContainerState) {
+				if (_constants.DEBUG) {
+					props.onWorkSpaceUpdated(_extends({}, _this.state, {
+						cropContainer: croppingContainerState
+					}));
+				}
+			}
+		});
 
-    // this is the main container
-    this.imageEditorContainer = (0, _utils.createElement)({
-      tagName: 'div',
-      className: _constants.CSS_NAMESPACE + '__container ' + _constants.CSS_NAMESPACE + '__container-loading',
-      children: [this.imageEditorWorkspace]
-    });
+		// this is the workspace wrapper
+		this.imageEditorWorkspace = (0, _utils.createElement)({
+			tagName: 'div',
+			className: _constants.CSS_NAMESPACE + '__workspace',
+			children: [this.imageObj, this.canvasWorkspace.getElement(), this.cropContainer.getElement()]
+		});
 
-    // append elements
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(this.imageEditorContainer);
-    this.appContainer.appendChild(fragment);
+		// this is the main container
+		this.imageEditorContainer = (0, _utils.createElement)({
+			tagName: 'div',
+			className: _constants.CSS_NAMESPACE + '__container ' + _constants.CSS_NAMESPACE + '__container-loading',
+			children: [this.imageEditorWorkspace]
+		});
 
-    this.frameRateInterval = 1000 / 30;
-    this.requestAnimationFrameId = null;
-    this.lastTimestamp = null;
+		// append elements
+		var fragment = document.createDocumentFragment();
+		fragment.appendChild(this.imageEditorContainer);
+		this.appContainer.appendChild(fragment);
 
-    // callbacks
-    this.onWorkSpaceUpdated = props.onWorkSpaceUpdated;
+		this.frameRateInterval = 1000 / 30;
+		this.requestAnimationFrameId = null;
+		this.lastTimestamp = null;
 
-    // load image and prepare workspace
-    this.imageObj.src = this.imagePath;
+		// callbacks
+		this.onWorkSpaceUpdated = props.onWorkSpaceUpdated;
 
-    return this;
-  }
+		// load image and prepare workspace
+		this.imageObj.src = this.imagePath;
 
-  _createClass(ImageEditor, [{
-    key: 'onImageLoaded',
-    value: function onImageLoaded() {
-      var _this = this;
+		return this;
+	}
 
-      this.state.image.originalWidth = this.imageObj.naturalWidth;
-      this.state.image.originalHeight = this.imageObj.naturalHeight;
-      this.state.appContainer.width = this.appContainer.offsetWidth;
-      this.state.appContainer.height = this.appContainer.offsetHeight;
+	_createClass(ImageEditor, [{
+		key: 'onImageLoaded',
+		value: function onImageLoaded() {
+			var _this2 = this;
 
-      // initial update of coordinates
-      this.updateWorkspace();
+			this.state.image.originalWidth = this.imageObj.naturalWidth;
+			this.state.image.originalHeight = this.imageObj.naturalHeight;
+			this.state.appContainer.width = this.appContainer.offsetWidth;
+			this.state.appContainer.height = this.appContainer.offsetHeight;
 
-      if (typeof window !== 'undefined') {
-        this.lastTimestamp = window.performance.now();
-        window.addEventListener('resize', this.onWindowResize);
-      }
+			// initial update of coordinates
+			this.updateWorkspace();
 
-      // finally, we show the workspace
-      // place it on the end of the stack to ensure the update takes place first
-      setTimeout(function () {
-        (0, _utils.removeClass)(_this.imageEditorContainer, _constants.CSS_NAMESPACE + '__container-loading');
-      });
-    }
-  }, {
-    key: 'onWindowResize',
-    value: function onWindowResize() {
-      this.requestAnimationFrameId = window.requestAnimationFrame(this.updateWorkspace);
-    }
+			if (typeof window !== 'undefined') {
+				this.lastTimestamp = window.performance.now();
+				window.addEventListener('resize', this.onWindowResize);
+			}
 
-    // update the positions and dimensions
-    // when the workspace changes
+			// finally, we show the workspace
+			// place it on the end of the stack to ensure the update takes place first
+			setTimeout(function () {
+				(0, _utils.removeClass)(_this2.imageEditorContainer, _constants.CSS_NAMESPACE + '__container-loading');
+			});
+		}
+	}, {
+		key: 'onWindowResize',
+		value: function onWindowResize() {
+			this.requestAnimationFrameId = window.requestAnimationFrame(this.updateWorkspace);
+		}
 
-  }, {
-    key: 'updateWorkspace',
-    value: function updateWorkspace(timestamp) {
-      var now = timestamp,
-          elapsedTime = now - this.lastTimestamp;
+		// update the positions and dimensions
+		// when the workspace changes
 
-      if (elapsedTime < this.frameRateInterval) {
-        return;
-      }
+	}, {
+		key: 'updateWorkspace',
+		value: function updateWorkspace(timestamp) {
+			var now = timestamp,
+			    elapsedTime = now - this.lastTimestamp;
 
-      // if enough time has passed to call the next frame
-      // reset lastTimeStamp minus 1 frame in ms ( to adjust for frame rates other than 60fps )
-      this.lastTimestamp = now - elapsedTime % this.frameRateInterval;
+			if (elapsedTime < this.frameRateInterval) {
+				return;
+			}
 
-      // get aspect ratio for the original image based on container size
-      var imageAspectRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.appContainer.offsetWidth, this.appContainer.offsetHeight, this.state.image.rotated, 1);
+			// if enough time has passed to call the next frame
+			// reset lastTimeStamp minus 1 frame in ms ( to adjust for frame rates other than 60fps )
+			this.lastTimestamp = now - elapsedTime % this.frameRateInterval;
 
-      // apply the initial dimensions to the image
-      this.state.image.width = imageAspectRatio.width;
-      this.state.image.height = imageAspectRatio.height;
-      this.state.image.ratio = imageAspectRatio.ratio;
+			// get aspect ratio for the original image based on container size
+			var imageAspectRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.appContainer.offsetWidth, this.appContainer.offsetHeight, this.state.image.rotated, 1);
 
-      this.imageObj.width = this.state.image.width;
-      this.imageObj.height = this.state.image.height;
+			// apply the initial dimensions to the image
+			this.state.image.width = imageAspectRatio.width;
+			this.state.image.height = imageAspectRatio.height;
+			this.state.image.ratio = imageAspectRatio.ratio;
 
-      /*
-      	Matrix:
-      		Center the image
-      */
+			this.imageObj.width = this.state.image.width;
+			this.imageObj.height = this.state.image.height;
 
-      // center coords of container
-      // new center - old centre
-      var appContainerCenterX = this.appContainer.offsetWidth / 2;
-      var appContainerCenterY = this.appContainer.offsetHeight / 2;
-      var imageCenterTranslateX = appContainerCenterX - this.state.image.width / 2;
-      var imageCenterTranslateY = appContainerCenterY - this.state.image.height / 2;
+			/*
+   	Matrix:
+   		Center the image
+   */
 
-      var imageObjStyle = getComputedStyle(this.imageObj).transform;
-      var transform = Rematrix.parse(imageObjStyle);
-      var r1 = Rematrix.translateX(imageCenterTranslateX - this.state.image.originX);
-      var r2 = Rematrix.translateY(imageCenterTranslateY - this.state.image.originY);
-      //const r3 = Rematrix.scale( cropContainerAspectRatio.ratio );
-      var product = [transform, r1, r2].reduce(Rematrix.multiply);
-      this.imageObj.style.transform = Rematrix.toString(product);
-      this.state.image.originX = imageCenterTranslateX;
-      this.state.image.originY = imageCenterTranslateY;
-      this.state.image.left = appContainerCenterX - this.state.image.width / 2;
-      this.state.image.top = appContainerCenterY - this.state.image.height / 2;
+			// center coords of container
+			// new center - old centre
+			var appContainerCenterX = this.appContainer.offsetWidth / 2;
+			var appContainerCenterY = this.appContainer.offsetHeight / 2;
+			var imageCenterTranslateX = appContainerCenterX - this.state.image.width / 2;
+			var imageCenterTranslateY = appContainerCenterY - this.state.image.height / 2;
 
-      /*
-      	Crop container:
-      	*/
-      // now we want the scale ratio for the cropping area
-      // so we get the dimensions of the scaled image
-      // we're scaling the image based on the container dimensions
-      // we want to the crop container to fit the outerContainer, but be no bigger than the image
-      var cropContainerState = this.cropContainer.getState();
-      var cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
-      var cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
-      var cropContainerLeft = cropContainerState.initialized ? cropContainerState.left : this.state.image.left;
-      var cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
+			var imageObjStyle = getComputedStyle(this.imageObj).transform;
+			var transform = Rematrix.parse(imageObjStyle);
+			var r1 = Rematrix.translateX(imageCenterTranslateX - this.state.image.originX);
+			var r2 = Rematrix.translateY(imageCenterTranslateY - this.state.image.originY);
+			//const r3 = Rematrix.scale( cropContainerAspectRatio.ratio );
+			var product = [transform, r1, r2].reduce(Rematrix.multiply);
+			this.imageObj.style.transform = Rematrix.toString(product);
+			this.state.image.originX = imageCenterTranslateX;
+			this.state.image.originY = imageCenterTranslateY;
+			this.state.image.left = appContainerCenterX - this.state.image.width / 2;
+			this.state.image.top = appContainerCenterY - this.state.image.height / 2;
 
-      this.cropContainer.update({
-        left: cropContainerLeft,
-        top: cropContainerTop,
-        width: cropContainerWidth,
-        height: cropContainerHeight,
-        maxWidth: this.state.image.height,
-        maxHeight: this.state.image.height
-      });
+			/*
+   	Crop container:
+   	*/
+			// now we want the scale ratio for the cropping area
+			// so we get the dimensions of the scaled image
+			// we're scaling the image based on the container dimensions
+			// we want to the crop container to fit the outerContainer, but be no bigger than the image
+			var cropContainerState = this.cropContainer.getState();
+			var cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
+			var cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
+			var cropContainerLeft = cropContainerState.initialized ? cropContainerState.left : this.state.image.left;
+			var cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
 
-      // cache the container offset width
-      this.state.appContainer.width = this.appContainer.offsetWidth;
-      this.state.appContainer.height = this.appContainer.offsetHeight;
-      /*
-      	Canvas update:
-      	*/
-      // TODO: we don't actually have to do this at all until the final save
-      this.canvasWorkspace.drawImage({
-        imageObj: this.imageObj,
-        canvasWidth: this.state.appContainer.width,
-        canvasHeight: this.state.appContainer.height,
-        imageWidth: this.imageObj.naturalWidth,
-        imageHeight: this.imageObj.naturalHeight,
-        imageX: 0,
-        imageY: 0,
-        drawWidth: cropContainerWidth,
-        drawHeight: cropContainerHeight,
-        drawX: cropContainerLeft,
-        drawY: cropContainerTop
-      });
+			this.cropContainer.update({
+				left: cropContainerLeft,
+				top: cropContainerTop,
+				width: cropContainerWidth,
+				height: cropContainerHeight,
+				maxWidth: this.state.image.height,
+				maxHeight: this.state.image.height,
+				imageCoords: {
+					left: this.state.image.left,
+					top: this.state.image.top,
+					right: this.state.image.left + this.state.image.width,
+					bottom: this.state.image.top + this.state.image.height
+				}
 
-      if (_constants.DEBUG) {
-        this.onWorkSpaceUpdated(this.state);
-      }
-    }
+			});
 
-    // ==== editing API
-    // rotate( callback ) // returns new coords
-    // reflect( callback ) // returns new coords
-    // changeAspectRatio( callback ) // returns new coords
-    // save() // returns blob
-    // preview() // returns image/png for optional preview before save
-    // reset( callback )
-    // onImageLoaded( callback ) // allows consumers to do something after bootstrap
-    // destroy () clear container and remove all event listeners
-    // getOriginalImage() // returns original image
-    // getWorkingImage() // returns image at current crop state
+			// cache the container offset width
+			this.state.appContainer.width = this.appContainer.offsetWidth;
+			this.state.appContainer.height = this.appContainer.offsetHeight;
+			/*
+   	Canvas update:
+   	*/
+			// TODO: we don't actually have to do this at all until the final save
+			this.canvasWorkspace.drawImage({
+				imageObj: this.imageObj,
+				canvasWidth: this.state.appContainer.width,
+				canvasHeight: this.state.appContainer.height,
+				imageWidth: this.imageObj.naturalWidth,
+				imageHeight: this.imageObj.naturalHeight,
+				imageX: 0,
+				imageY: 0,
+				drawWidth: cropContainerWidth,
+				drawHeight: cropContainerHeight,
+				drawX: cropContainerLeft,
+				drawY: cropContainerTop
+			});
 
-  }]);
+			if (_constants.DEBUG) {
+				this.onWorkSpaceUpdated(_extends({}, this.state, {
+					cropContainer: this.cropContainer.getState()
+				}));
+			}
+		}
 
-  return ImageEditor;
+		// ==== editing API
+		// rotate( callback ) // returns new coords
+		// reflect( callback ) // returns new coords
+		// changeAspectRatio( callback ) // returns new coords
+		// save() // returns blob
+		// preview() // returns image/png for optional preview before save
+		// reset( callback )
+		// onImageLoaded( callback ) // allows consumers to do something after bootstrap
+		// destroy () clear container and remove all event listeners
+		// getOriginalImage() // returns original image
+		// getWorkingImage() // returns image at current crop state
+
+	}]);
+
+	return ImageEditor;
 }();
 
 exports.default = ImageEditor;
@@ -1216,9 +1236,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _constants = __webpack_require__(1);
+var _constants = __webpack_require__(2);
 
-var _utils = __webpack_require__(0);
+var _utils = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1300,9 +1320,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(0);
+var _utils = __webpack_require__(1);
 
-var _constants = __webpack_require__(1);
+var _constants = __webpack_require__(2);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1310,7 +1330,8 @@ var CropContainer = function () {
 	function CropContainer(_ref) {
 		var appContainer = _ref.appContainer,
 		    imageObj = _ref.imageObj,
-		    canvasWorkspace = _ref.canvasWorkspace;
+		    canvasWorkspace = _ref.canvasWorkspace,
+		    onWorkSpaceUpdated = _ref.onWorkSpaceUpdated;
 
 		_classCallCheck(this, CropContainer);
 
@@ -1350,6 +1371,9 @@ var CropContainer = function () {
 		this.appContainer = appContainer;
 		this.imageObj = imageObj;
 		this.canvasWorkspace = canvasWorkspace;
+
+		// callbacks
+		this.onWorkSpaceUpdated = onWorkSpaceUpdated;
 
 		this.onStartDragCropArea = this.onStartDragCropArea.bind(this);
 		// this.onDragCropArea = this.onDragCropArea.bind( this );
@@ -1407,7 +1431,8 @@ var CropContainer = function () {
 			    width = _ref2.width,
 			    height = _ref2.height,
 			    maxWidth = _ref2.maxWidth,
-			    maxHeight = _ref2.maxHeight;
+			    maxHeight = _ref2.maxHeight,
+			    imageCoords = _ref2.imageCoords;
 
 			/*		this.element.width = anotherScaleRatio.width > this.imageObj.width ? this.imageObj.width : anotherScaleRatio.width;
    		this.element.height = anotherScaleRatio.height > this.imageObj.height ? this.imageObj.height : anotherScaleRatio.height;	*/
@@ -1430,7 +1455,8 @@ var CropContainer = function () {
 				width: width,
 				height: height,
 				top: top,
-				left: left
+				left: left,
+				imageCoords: imageCoords
 			});
 		}
 
@@ -1459,6 +1485,12 @@ var CropContainer = function () {
 				return false;
 			}
 			// otherwise we're free to drag the image
+			// TODO abstract this out to a separate method
+			// this.dragging = true;
+			// this.mousePos = getMousePosition( event, this.appContainer );
+			// this.state.left = this.mousePos.x;
+			// this.state.top = this.mousePos.y;
+
 		}
 	}, {
 		key: 'onStartCropResize',
@@ -1498,35 +1530,82 @@ var CropContainer = function () {
 			    drawWidth = void 0,
 			    drawHeight = void 0,
 			    imageWidth = void 0,
-			    imageHeight = void 0;
+			    imageHeight = void 0,
+			    ignoreResize = void 0;
 
 			var imageAspectRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.appContainer.offsetWidth, this.appContainer.offsetHeight, false, 1);
 
-			if (this.cropEvent.target.classList.contains(_constants.CSS_NAMESPACE + '__draggable-corner-se')) {
+			if (this.mousePos.x <= this.state.imageCoords.left || this.mousePos.x >= this.state.imageCoords.right || this.mousePos.y <= this.state.imageCoords.top || this.mousePos.y >= this.state.imageCoords.bottom) {
+				ignoreResize = true;
+			}
 
+			if (this.cropEvent.target.classList.contains(_constants.CSS_NAMESPACE + '__draggable-corner-se')) {
+				console.log('se drag', '');
 				// origin of image scale should be set to the opposite corner of this handle
 				//this.image.transform.origin = [ 'left', 'top' ];
-
 
 				width = this.mousePos.x - this.state.left;
 				height = this.mousePos.y - this.state.top;
 				left = this.state.left;
 				top = this.state.top;
+				right = left + width;
+				bottom = top + height;
+
+				if (right >= this.state.imageCoords.right) {
+					width = this.state.imageCoords.right - left;
+				}
+				if (bottom >= this.state.imageCoords.bottom) {
+					height = this.state.imageCoords.bottom - top;
+				}
+				if (this.constrain || event.shiftKey) {
+					height = width / this.imageObj.width * this.imageObj.height;
+					width = height / this.imageObj.height * this.imageObj.width;
+					// left = this.state.left + this.state.width - width;
+
+					bottom = bottom <= this.state.imageCoords.bottom ? this.state.imageCoords.bottom : this.mousePos.y;
+				}
 			}
 
 			if (this.cropEvent.target.classList.contains(_constants.CSS_NAMESPACE + '__draggable-corner-sw')) {
+				console.log('sw drag', '');
 
 				// origin of image scale should be set to the opposite corner of this handle
 				//this.image.transform.origin = [ 'right', 'top' ];
+
 
 				width = this.state.width - (this.mousePos.x - this.state.left);
 				left = this.mousePos.x;
 				height = this.mousePos.y - this.state.top;
 				top = this.state.top;
+				bottom = top + height;
+
+				if (width <= this.state.minDimensions.width && left < this.state.imageCoords.right - this.state.minDimensions.width) {
+					left = this.state.left + this.state.width - this.state.minDimensions.width;
+					width = this.state.minDimensions.width;
+				}
+
+				if (left >= this.state.imageCoords.right - this.state.minDimensions.width) {
+					left = this.state.left + this.state.width - this.state.minDimensions.width;
+				}
+
+				if (bottom >= this.state.imageCoords.bottom) {
+					height = this.state.imageCoords.bottom - top;
+				}
+
+				if (left <= this.state.imageCoords.left) {
+					left = this.state.imageCoords.left;
+					width = this.state.width + (this.state.left - this.state.imageCoords.left);
+				}
+				if (this.constrain || event.shiftKey) {
+					height = width / this.imageObj.width * this.imageObj.height;
+					width = height / this.imageObj.height * this.imageObj.width;
+					left = this.state.left + this.state.width - width;
+					bottom = bottom <= this.state.imageCoords.bottom ? this.state.imageCoords.bottom : this.mousePos.y;
+				}
 			}
 
 			if (this.cropEvent.target.classList.contains(_constants.CSS_NAMESPACE + '__draggable-corner-nw')) {
-
+				console.log('nw drag', '');
 				// origin of image scale should be set to the opposite corner of this handle
 				//this.image.transform.origin = [ 'right', 'bottom' ];
 
@@ -1535,13 +1614,40 @@ var CropContainer = function () {
 				left = this.mousePos.x;
 				top = this.mousePos.y;
 
+				if (width <= this.state.minDimensions.width && left < this.state.imageCoords.right - this.state.minDimensions.width) {
+					left = this.state.left + this.state.width - this.state.minDimensions.width;
+					width = this.state.minDimensions.width;
+				}
+
+				if (left >= this.state.imageCoords.right - this.state.minDimensions.width) {
+					left = this.state.left + this.state.width - this.state.minDimensions.width;
+				}
+
+				if (left <= this.state.imageCoords.left) {
+					left = this.state.imageCoords.left;
+					width = this.state.width + (this.state.left - this.state.imageCoords.left);
+				}
+
+				if (top <= this.state.imageCoords.top) {
+					top = this.state.imageCoords.top;
+					height = this.state.bottom - top;
+				}
+
+				if (height <= this.state.minDimensions.height && top > this.state.imageCoords.top) {
+					height = this.state.minDimensions.height;
+					top = this.state.top + this.state.height - this.state.minDimensions.height;
+				}
+
 				if (this.constrain || event.shiftKey) {
-					top = this.mousePos.y - (width / this.imageObj.width * this.imageObj.height - height);
+					height = width / this.imageObj.width * this.imageObj.height;
+					width = height / this.imageObj.height * this.imageObj.width;
+					left = this.state.left + this.state.width - width;
+					top = this.state.top + this.state.height - height;
 				}
 			}
 
 			if (this.cropEvent.target.classList.contains(_constants.CSS_NAMESPACE + '__draggable-corner-ne')) {
-
+				console.log('ne drag', '');
 				// origin of image scale should be set to the opposite corner of this handle
 				//this.image.transform.origin = [ 'left', 'bottom' ];
 
@@ -1549,9 +1655,24 @@ var CropContainer = function () {
 				height = this.state.height - (this.mousePos.y - this.state.top);
 				left = this.state.left;
 				top = this.mousePos.y;
+				right = left + width;
 
+				if (height <= this.state.minDimensions.height) {
+					height = this.state.minDimensions.height;
+					top = this.state.top + this.state.height - this.state.minDimensions.height;
+				}
+				if (top <= this.state.imageCoords.top) {
+					top = this.state.imageCoords.top;
+					height = this.state.bottom - top;
+				}
+				if (right >= this.state.imageCoords.right) {
+					width = this.state.imageCoords.right - left;
+				}
+				if (bottom >= this.state.imageCoords.bottom) {
+					height = this.state.imageCoords.bottom - top;
+				}
 				if (this.constrain || event.shiftKey) {
-					top = this.mousePos.y - (width / this.imageObj.width * this.imageObj.height - height);
+					width = height / this.imageObj.height * this.imageObj.width;
 				}
 			}
 
@@ -1562,16 +1683,15 @@ var CropContainer = function () {
 			width = width >= this.state.maxDimensions.width ? this.state.maxDimensions.width : width;
 			width = width <= this.state.minDimensions.width ? this.state.minDimensions.width : width;
 
-			/*		left = left >= this.state.right - this.state.minDimensions.width
-   			? this.state.right - this.state.minDimensions.width : left;
-   		left = left <= this.state.left ? this.state.left : left;
-   		top = top >= this.state.maxDimensions.height - this.state.minDimensions.height
-   			? this.state.maxDimensions.height - this.state.minDimensions.height : top;
-   		top = (top <= this.state.top || isNaN(top)) ? this.state.top : top;*/
+			// left = left >= this.state.right - this.state.minDimensions.width
+			// 	? this.state.right - this.state.minDimensions.width : left;
+			//
+			// left = left <= this.state.left ? this.state.left : left;
+			//
+			// top = top >= this.state.maxDimensions.height - this.state.minDimensions.height
+			// 	? this.state.maxDimensions.height - this.state.minDimensions.height : top;
+			// top = (top <= this.state.top || isNaN(top)) ? this.state.top : top;
 
-			if (this.constrain || event.shiftKey) {
-				height = width / this.imageObj.width * this.imageObj.height;
-			}
 
 			var appContainerCenterX = this.appContainer.offsetWidth / 2;
 			var appContainerCenterY = this.appContainer.offsetHeight / 2;
@@ -1620,18 +1740,9 @@ var CropContainer = function () {
 			this.state.right = this.state.left + width;
 			this.cropActionTriggered = true;
 
-			/*		this.onWorkSpaceUpdated( {
-   			image: {
-   				...this.image
-   			},
-   			cropped: {
-   				...this.croppingArea,
-   			},
-   			original: {
-   				width: this.image.naturalWidth,
-   				height: this.image.naturalHeight,
-   			}
-   		} );*/
+			if (_constants.DEBUG) {
+				this.onWorkSpaceUpdated(_extends({}, this.getState()));
+			}
 			this.state.initialized = true;
 			return false;
 		}

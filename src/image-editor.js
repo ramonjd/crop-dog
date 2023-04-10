@@ -134,6 +134,14 @@ export default class ImageEditor {
 			appContainer: this.appContainer,
 			imageObj: this.imageObj,
 			canvasWorkspace: this.canvasWorkspace,
+			onWorkSpaceUpdated: ( croppingContainerState ) => {
+				if ( DEBUG ) {
+					props.onWorkSpaceUpdated( {
+						...this.state,
+						cropContainer: croppingContainerState,
+					} );
+				}
+			},
 		} );
 
         // this is the workspace wrapper
@@ -207,8 +215,6 @@ export default class ImageEditor {
         // if enough time has passed to call the next frame
         // reset lastTimeStamp minus 1 frame in ms ( to adjust for frame rates other than 60fps )
         this.lastTimestamp = now - ( elapsedTime % this.frameRateInterval );
-
-
 
 
 
@@ -286,6 +292,13 @@ export default class ImageEditor {
 			height: cropContainerHeight,
 			maxWidth: this.state.image.height,
 			maxHeight: this.state.image.height,
+			imageCoords: {
+				left: this.state.image.left,
+				top: this.state.image.top,
+				right: this.state.image.left + this.state.image.width,
+				bottom: this.state.image.top + this.state.image.height,
+			}
+
 		} );
 
 		// cache the container offset width
@@ -311,7 +324,10 @@ export default class ImageEditor {
 		} );
 
 		if ( DEBUG ) {
-			this.onWorkSpaceUpdated( this.state );
+			this.onWorkSpaceUpdated( {
+				...this.state,
+				cropContainer: this.cropContainer.getState(),
+			} );
 		}
     }
 
