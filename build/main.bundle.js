@@ -82,6 +82,27 @@ window.imageEditor = new _imageEditor2.default({
     onWorkSpaceUpdated: onWorkSpaceUpdated
 }, document.querySelector('.media-image-editor__canvas-container'));
 
+function exportEditedImage() {
+    // Get a reference to the canvas element
+    var previewImg = document.querySelector('.media-image-editor_debug__preview-container img');
+
+    // Get the data URI of the canvas image
+    var dataURI = window.imageEditor.canvasWorkspace.exportImageURI();
+
+    // Append the image element to the document
+    previewImg.src = dataURI;
+
+    //     In this example, myCanvas is the ID of the canvas element in the HTML document. The toDataURL method returns a data URI that represents the contents of the canvas as a PNG image. The data URI is assigned to the src attribute of a new image element, which is then appended to the document. This will display the canvas image on the page.
+    //
+    //         You can also use the toBlob method to export the canvas as a Blob object, which can be used for further processing or saving to a file. Here's an example:
+    //
+    //     javascript
+    //     Copy code
+    //     canvas.toBlob(function(blob) {
+    //         // Use the Blob object here
+    //     });
+}
+
 // DEBUG
 function onWorkSpaceUpdated(state) {
     //const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
@@ -96,6 +117,7 @@ function onWorkSpaceUpdated(state) {
 
     document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
     document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
+    exportEditedImage();
 }
 
 /***/ }),
@@ -682,6 +704,7 @@ var ImageEditor = function () {
 
 			// get aspect ratio for the original image based on container size
 			var imageAspectRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.appContainer.offsetWidth, this.appContainer.offsetHeight, this.state.image.rotated, 1);
+			var cropContainerState = this.cropContainer.getState();
 
 			// apply the initial dimensions to the image
 			this.state.image.width = imageAspectRatio.width;
@@ -707,7 +730,6 @@ var ImageEditor = function () {
 			var transform = Rematrix.parse(imageObjStyle);
 			var r1 = Rematrix.translateX(imageCenterTranslateX - this.state.image.originX);
 			var r2 = Rematrix.translateY(imageCenterTranslateY - this.state.image.originY);
-			//const r3 = Rematrix.scale( cropContainerAspectRatio.ratio );
 			var product = [transform, r1, r2].reduce(Rematrix.multiply);
 			this.imageObj.style.transform = Rematrix.toString(product);
 			this.state.image.originX = imageCenterTranslateX;
@@ -722,11 +744,17 @@ var ImageEditor = function () {
 			// so we get the dimensions of the scaled image
 			// we're scaling the image based on the container dimensions
 			// we want to the crop container to fit the outerContainer, but be no bigger than the image
-			var cropContainerState = this.cropContainer.getState();
+
 			var cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
 			var cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
 			var cropContainerLeft = cropContainerState.initialized ? cropContainerState.left : this.state.image.left;
 			var cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
+
+			/*
+   	The crop container should scale with the image. So we need to get the scale ratio of the image and apply it to the crop container dimensions and position.
+   	For example, if the image is scaled to 50% of its original size, the crop container should be scaled to 50% of its original size.
+   	Since the image is already scaled, depending on the window size, we need to know by how much the image has scaled
+    */
 
 			this.cropContainer.update({
 				left: cropContainerLeft,
@@ -1246,6 +1274,19 @@ var CanvasWorkspace = function () {
 	function CanvasWorkspace() {
 		_classCallCheck(this, CanvasWorkspace);
 
+		this.state = {
+			imageObj: null,
+			cropped: {
+				x: 0,
+				y: 0,
+				dx: 0,
+				dy: 0,
+				width: 0,
+				height: 0,
+				imageWidth: 0,
+				imageHeight: 0
+			}
+		};
 		this.element = (0, _utils.createElement)({
 			tagName: 'canvas',
 			className: _constants.CSS_NAMESPACE + '__canvas-workspace'
@@ -1256,6 +1297,26 @@ var CanvasWorkspace = function () {
 		key: 'getElement',
 		value: function getElement() {
 			return this.element;
+		}
+	}, {
+		key: 'exportImageURI',
+		value: function exportImageURI() {
+			// Create a new canvas element with the same dimensions as the section to be exported
+			var tempCanvas = document.createElement('canvas');
+			// TODO where to get the width and height from? Pass it in?
+			var scaleFactor = this.state.imageObj.naturalWidth / this.state.imageObj.width;
+			tempCanvas.width = this.state.cropped.width * scaleFactor;
+			tempCanvas.height = this.state.cropped.height * scaleFactor;
+
+			// Draw the section onto the new canvas element
+			var context = tempCanvas.getContext('2d');
+			context.drawImage(this.state.imageObj, this.state.cropped.x, this.state.cropped.y, tempCanvas.width, tempCanvas.height, 0, 0, tempCanvas.width, tempCanvas.height);
+
+			// Export the new canvas element as a PNG image data URI
+			var dataURI = tempCanvas.toDataURL('image/png');
+			//this.element.toDataURL( 'image/jpeg', 0.8 )
+
+			return dataURI;
 		}
 
 		// TODO: at the moment we're calling this after every image transformation
@@ -1284,6 +1345,15 @@ var CanvasWorkspace = function () {
 			var context = this.element.getContext('2d');
 			context.clearRect(0, 0, this.element.width, this.element.height);
 			context.save();
+			this.state.imageObj = imageObj;
+			this.state.cropped.x = imageX;
+			this.state.cropped.y = imageY;
+			this.state.cropped.dx = drawX;
+			this.state.cropped.dy = drawY;
+			this.state.cropped.width = drawWidth;
+			this.state.cropped.height = drawHeight;
+			this.state.cropped.imageWidth = imageWidth;
+			this.state.cropped.imageHeight = imageHeight;
 
 			// now draw!
 			context.drawImage(imageObj,

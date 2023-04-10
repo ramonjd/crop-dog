@@ -234,11 +234,13 @@ li {
 }
 
 .media-image-editor_debug__preview-container {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
 }
 
 .media-image-editor_debug__preview-container img {
     display: block;
-    width: 50%;
-    height: 50%;
+    width: 100%;
 }

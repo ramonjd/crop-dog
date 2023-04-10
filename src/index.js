@@ -9,6 +9,29 @@ window.imageEditor = new Editor(
     document.querySelector( '.media-image-editor__canvas-container' )
 );
 
+function exportEditedImage() {
+// Get a reference to the canvas element
+    const previewImg = document.querySelector('.media-image-editor_debug__preview-container img');
+
+// Get the data URI of the canvas image
+    const dataURI = window.imageEditor.canvasWorkspace.exportImageURI();
+
+
+
+// Append the image element to the document
+    previewImg.src = dataURI;
+
+//     In this example, myCanvas is the ID of the canvas element in the HTML document. The toDataURL method returns a data URI that represents the contents of the canvas as a PNG image. The data URI is assigned to the src attribute of a new image element, which is then appended to the document. This will display the canvas image on the page.
+//
+//         You can also use the toBlob method to export the canvas as a Blob object, which can be used for further processing or saving to a file. Here's an example:
+//
+//     javascript
+//     Copy code
+//     canvas.toBlob(function(blob) {
+//         // Use the Blob object here
+//     });
+}
+
 
 // DEBUG
 function onWorkSpaceUpdated( state ) {
@@ -66,7 +89,7 @@ function onWorkSpaceUpdated( state ) {
 
     document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
     document.querySelector( '.media-image-editor_debug-values ul' ).innerHTML = template;
-
+    exportEditedImage();
 }
 
 

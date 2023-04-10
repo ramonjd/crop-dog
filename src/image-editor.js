@@ -226,6 +226,8 @@ export default class ImageEditor {
 				this.appContainer.offsetHeight,
 				this.state.image.rotated,
 			1 );
+		const cropContainerState = this.cropContainer.getState();
+
 
 		// apply the initial dimensions to the image
 		this.state.image.width = imageAspectRatio.width;
@@ -258,7 +260,6 @@ export default class ImageEditor {
 		const transform = Rematrix.parse( imageObjStyle );
 		const r1 = Rematrix.translateX( imageCenterTranslateX - this.state.image.originX );
 		const r2 = Rematrix.translateY( imageCenterTranslateY - this.state.image.originY );
-		//const r3 = Rematrix.scale( cropContainerAspectRatio.ratio );
 		const product = [ transform, r1, r2 ].reduce( Rematrix.multiply );
 		this.imageObj.style.transform = Rematrix.toString( product );
 		this.state.image.originX = imageCenterTranslateX;
@@ -274,15 +275,18 @@ export default class ImageEditor {
 		// so we get the dimensions of the scaled image
 		// we're scaling the image based on the container dimensions
 		// we want to the crop container to fit the outerContainer, but be no bigger than the image
-		const cropContainerState = this.cropContainer.getState();
+
 		const cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
 		const cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
-		const cropContainerLeft = cropContainerState.initialized ? cropContainerState.left : this.state.image.left;
+		const cropContainerLeft = cropContainerState.initialized ? cropContainerState.left  : this.state.image.left;
 		const cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
 
 
-
-
+		/*
+			The crop container should scale with the image. So we need to get the scale ratio of the image and apply it to the crop container dimensions and position.
+			For example, if the image is scaled to 50% of its original size, the crop container should be scaled to 50% of its original size.
+			Since the image is already scaled, depending on the window size, we need to know by how much the image has scaled
+		 */
 
 
 		this.cropContainer.update( {

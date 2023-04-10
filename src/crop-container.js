@@ -338,8 +338,6 @@ export default class CropContainer {
 				top = this.state.top + this.state.height - height;
 			}
 
-
-
 		}
 
 		if ( this.cropEvent.target.classList.contains( `${CSS_NAMESPACE}__draggable-corner-ne` ) ) {
