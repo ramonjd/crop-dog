@@ -79,10 +79,10 @@ function onWorkSpaceUpdated( state ) {
             </samp>
         </li>
          <li>
-            <var>Crop container coordinates relative to window</var>
+            <var>Crop container coordinates relative to image</var>
             <samp>
-                left: ${ state.cropContainer.left }, top:  ${ state.cropContainer.top  },
-                right: ${ state.cropContainer.right }, bottom:  ${ state.cropContainer.bottom  }
+                left: ${ state.cropContainer.relative.left }, top:  ${ state.cropContainer.relative.top },
+                right: ${ state.cropContainer.relative.right }, bottom:  ${ state.cropContainer.relative.bottom  }
             </samp>
         </li>
     `;

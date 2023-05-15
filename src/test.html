@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Photo Cropper</title>
+    <style>
+        .container {
+            outline: none;
+            height: 100%;
+            width: 100%;
+            margin: 0 auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        img {
+            opacity: .5;
+            pointer-events: none;
+            position: absolute;
+            display: block;
+            transform-origin: center;
+            transform: translateZ(0);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cropper"></div>
+        <img src="grid.png" />
+    </div>
+<script>
+
+</script>
+</body>
+</html>

@@ -228,6 +228,16 @@ export default class ImageEditor {
 			1 );
 		const cropContainerState = this.cropContainer.getState();
 
+		//scaleFactor = new / old
+		const something = imageAspectRatio.width / this.state.image.originalWidth
+		const widthScaleFactor = imageAspectRatio.width / this.state.image.width;
+		const heightScaleFactor = imageAspectRatio.height / this.state.image.height;
+		// To get the relative left position,
+		// we need to know where the relative left of the cropper is in relation to the original image. This
+		// will give us the percentage of the original image that the cropper is offset from the left.
+		const newCropRelativeLeft = imageAspectRatio.width * cropContainerState.relative.leftPercentageOfWidth;
+		const newCropRelativeTop = imageAspectRatio.height * cropContainerState.relative.topPercentageOfHeight;
+
 
 		// apply the initial dimensions to the image
 		this.state.image.width = imageAspectRatio.width;
@@ -237,10 +247,6 @@ export default class ImageEditor {
 
 		this.imageObj.width = this.state.image.width;
 		this.imageObj.height = this.state.image.height;
-
-
-
-
 
 
 
@@ -262,10 +268,9 @@ export default class ImageEditor {
 		const r2 = Rematrix.translateY( imageCenterTranslateY - this.state.image.originY );
 		const product = [ transform, r1, r2 ].reduce( Rematrix.multiply );
 		this.imageObj.style.transform = Rematrix.toString( product );
-		this.state.image.originX = imageCenterTranslateX;
-		this.state.image.originY = imageCenterTranslateY;
-		this.state.image.left = appContainerCenterX - ( this.state.image.width / 2 );
-		this.state.image.top = appContainerCenterY - ( this.state.image.height / 2 );
+		const newImageLeft = appContainerCenterX - ( this.state.image.width / 2 );
+		const newImageTop = appContainerCenterY - ( this.state.image.height / 2 );
+
 
 		/*
 			Crop container:
@@ -276,10 +281,16 @@ export default class ImageEditor {
 		// we're scaling the image based on the container dimensions
 		// we want to the crop container to fit the outerContainer, but be no bigger than the image
 
-		const cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
-		const cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
-		const cropContainerLeft = cropContainerState.initialized ? cropContainerState.left  : this.state.image.left;
-		const cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
+
+		const cropContainerWidth = cropContainerState.initialized ? cropContainerState.width * widthScaleFactor : this.state.image.width;
+		const cropContainerHeight = cropContainerState.initialized ? cropContainerState.height * widthScaleFactor : this.state.image.height;
+		const cropContainerLeft = cropContainerState.initialized ? newImageLeft + newCropRelativeLeft : newImageLeft;
+		const cropContainerTop = cropContainerState.initialized ? newImageTop + newCropRelativeTop : newImageTop;
+// newImageLeft + ( cropContainerState.relative.left / ( cropContainerWidth / this.state.image.width ) )
+		this.state.image.originX = imageCenterTranslateX;
+		this.state.image.originY = imageCenterTranslateY;
+		this.state.image.left = newImageLeft;
+		this.state.image.top = newImageTop;
 
 
 		/*
@@ -287,8 +298,6 @@ export default class ImageEditor {
 			For example, if the image is scaled to 50% of its original size, the crop container should be scaled to 50% of its original size.
 			Since the image is already scaled, depending on the window size, we need to know by how much the image has scaled
 		 */
-
-
 		this.cropContainer.update( {
 			left: cropContainerLeft,
 			top: cropContainerTop,
@@ -317,10 +326,10 @@ export default class ImageEditor {
 			imageObj: this.imageObj,
 			canvasWidth: this.state.appContainer.width,
 			canvasHeight: this.state.appContainer.height,
-			imageWidth: this.imageObj.naturalWidth,
-			imageHeight: this.imageObj.naturalHeight,
-			imageX: 0,
-			imageY: 0,
+			imageWidth: cropContainerWidth / imageAspectRatio.ratio,
+			imageHeight: cropContainerHeight / imageAspectRatio.ratio,
+			imageX: 0 + ( ( cropContainerLeft - this.state.image.left ) / imageAspectRatio.ratio ),
+			imageY: 0 + ( ( cropContainerTop - this.state.image.top ) / imageAspectRatio.ratio ),
 			drawWidth: cropContainerWidth,
 			drawHeight: cropContainerHeight,
 			drawX: cropContainerLeft,

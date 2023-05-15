@@ -42,11 +42,20 @@ export default class CropContainer {
 				bottom: 0,
 				left: 0
 			},
-			// current position of the crop rectangle
+			// current position of the crop rectangle relative to outer container
 			top: 0,
 			right: 0,
 			bottom: 0,
 			left: 0,
+			// current position relative to the image
+			relative: {
+				top: 0,
+				right: 0,
+				bottom: 0,
+				left: 0,
+				leftPercentageOfWidth: 0,
+				topPercentageOfHeight: 0,
+			},
 			// current dimensions
 			width: 0,
 			height: 0,
@@ -142,6 +151,7 @@ export default class CropContainer {
 			imageCoords
 		};
 
+
 	}
 
 	/*
@@ -201,7 +211,7 @@ export default class CropContainer {
 		// first check the mouse boundaries
 		// now calculate the new dimensions of the crop area
 		let width, height, left, top, right, bottom, imageX, imageY, drawX, drawY, drawWidth, drawHeight, imageWidth, imageHeight, ignoreResize;
-		
+
 		const imageAspectRatio = calculateAspectRatioFit(
 			this.imageObj.naturalWidth,
 			this.imageObj.naturalHeight,
@@ -210,14 +220,14 @@ export default class CropContainer {
 			false,
 			1 );
 
-		
-		if ( this.mousePos.x <= this.state.imageCoords.left || 
-			this.mousePos.x >= this.state.imageCoords.right || 
-			this.mousePos.y <= this.state.imageCoords.top || 
+
+		if ( this.mousePos.x <= this.state.imageCoords.left ||
+			this.mousePos.x >= this.state.imageCoords.right ||
+			this.mousePos.y <= this.state.imageCoords.top ||
 			this.mousePos.y >= this.state.imageCoords.bottom ) {
 			ignoreResize = true;
 		}
-		
+
 		if ( this.cropEvent.target.classList.contains( `${CSS_NAMESPACE}__draggable-corner-se` ) ) {
 			console.log( 'se drag', '');
 				// origin of image scale should be set to the opposite corner of this handle
@@ -379,7 +389,7 @@ export default class CropContainer {
 		width = width >= this.state.maxDimensions.width ? this.state.maxDimensions.width : width;
 		width = width <= this.state.minDimensions.width ? this.state.minDimensions.width : width;
 
-		
+
 
 
 
@@ -412,8 +422,6 @@ export default class CropContainer {
 		drawWidth = width;
 		drawHeight = height;
 
-		//console.log( 'imageX, imageY, imageWidth, imageHeight, drawX, drawY, drawWidth, drawHeight', imageX, imageY, imageWidth, imageHeight, drawX, drawY, drawWidth, drawHeight );
-
 		this.canvasWorkspace.drawImage( {
 			imageObj: this.imageObj,
 			canvasWidth: this.appContainer.offsetWidth,
@@ -430,6 +438,7 @@ export default class CropContainer {
 
 		this.state.left = left;
 		this.element.style.left = `${ this.state.left  }px`;
+		this.state.relative.left = left - this.state.imageCoords.left;
 
 		this.state.width = width;
 		this.element.style.width = `${ this.state.width }px`;
@@ -439,9 +448,16 @@ export default class CropContainer {
 
 		this.state.top = top;
 		this.element.style.top = `${ this.state.top }px`;
+		this.state.relative.top = top - this.state.imageCoords.top;
 
 		this.state.bottom = this.state.top + height;
 		this.state.right = this.state.left + width;
+		this.state.relative.bottom = this.state.relative.top + height;
+		this.state.relative.right = this.state.relative.left + width;
+		this.state.relative.leftPercentageOfWidth =  this.state.relative.left / this.imageObj.width;
+		this.state.relative.topPercentageOfHeight =  this.state.relative.top / this.imageObj.height;
+
+
 		this.cropActionTriggered = true;
 
 

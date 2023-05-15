@@ -60,68 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _imageEditor = __webpack_require__(3);
-
-var _imageEditor2 = _interopRequireDefault(_imageEditor);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-window.imageEditor = new _imageEditor2.default({
-    imagePath: 'http://localhost:8888/src/amsler.jpg',
-    imageAltText: 'A village after dark',
-    onWorkSpaceUpdated: onWorkSpaceUpdated
-}, document.querySelector('.media-image-editor__canvas-container'));
-
-function exportEditedImage() {
-    // Get a reference to the canvas element
-    var previewImg = document.querySelector('.media-image-editor_debug__preview-container img');
-
-    // Get the data URI of the canvas image
-    var dataURI = window.imageEditor.canvasWorkspace.exportImageURI();
-
-    // Append the image element to the document
-    previewImg.src = dataURI;
-
-    //     In this example, myCanvas is the ID of the canvas element in the HTML document. The toDataURL method returns a data URI that represents the contents of the canvas as a PNG image. The data URI is assigned to the src attribute of a new image element, which is then appended to the document. This will display the canvas image on the page.
-    //
-    //         You can also use the toBlob method to export the canvas as a Blob object, which can be used for further processing or saving to a file. Here's an example:
-    //
-    //     javascript
-    //     Copy code
-    //     canvas.toBlob(function(blob) {
-    //         // Use the Blob object here
-    //     });
-}
-
-// DEBUG
-function onWorkSpaceUpdated(state) {
-    //const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
-    //const croppedImageAtag = document.querySelector( '.media-image-editor_debug__preview-container a' );
-    //const previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8 );
-    //croppedImageObj.src = previewImage;
-    //croppedImageObj.width = newImageEditorState.cropped.width;
-    //croppedImageObj.height = newImageEditorState.cropped.height;
-    //croppedImageAtag.href = previewImage;
-
-    var template = '\n        <li>\n            <var>App container dimensions</var>\n            <samp>\n                ' + state.appContainer.width + ' x ' + state.appContainer.height + '\n            </samp>\n        </li>\n        <li>\n            <var>Original image dimensions</var>\n            <samp>\n                ' + state.image.originalWidth + ' x ' + state.image.originalHeight + '\n            </samp>\n        </li>\n\t\t<li>\n\t\t\t<var>Scaled image dimensions</var>\n\t\t\t<samp>\n\t\t\t\t' + state.image.width + ' x ' + state.image.height + '\n\t\t\t</samp>\n\t\t</li>\n        <li>\n\t\t\t<var>Ratio to original image</var>\n\t\t\t<samp>' + state.image.ratio + '</samp>\n        </li>\n         <li>\n            <var>Image coordinates relative to window</var>\n            <samp>\n                left: ' + state.image.left + ', top:  ' + state.image.top + '\n            </samp>\n        </li>\n         <li>\n            <var>Crop container height and width</var>\n            <samp>\n                ' + state.cropContainer.width + ' x ' + state.cropContainer.height + '\n            </samp>\n        </li>\n         <li>\n            <var>Crop container coordinates relative to window</var>\n            <samp>\n                left: ' + state.cropContainer.left + ', top:  ' + state.cropContainer.top + ',\n                right: ' + state.cropContainer.right + ', bottom:  ' + state.cropContainer.bottom + '\n            </samp>\n        </li>\n    ';
-
-    document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
-    document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
-    exportEditedImage();
-}
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -456,7 +399,7 @@ function getOriginalCoordinatesFromTransformedMatrix(transformMatrix, inverseTra
 }
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -470,6 +413,63 @@ var IMAGE_ALT_TEXT = exports.IMAGE_ALT_TEXT = 'Image being edited';
 var ACTIVE_CLASS = exports.ACTIVE_CLASS = 'image-editor__active';
 var EDITOR_GUTTER = exports.EDITOR_GUTTER = .7;
 var DEBUG = exports.DEBUG = true;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _imageEditor = __webpack_require__(3);
+
+var _imageEditor2 = _interopRequireDefault(_imageEditor);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.imageEditor = new _imageEditor2.default({
+    imagePath: 'http://localhost:8888/src/amsler.jpg',
+    imageAltText: 'A village after dark',
+    onWorkSpaceUpdated: onWorkSpaceUpdated
+}, document.querySelector('.media-image-editor__canvas-container'));
+
+function exportEditedImage() {
+    // Get a reference to the canvas element
+    var previewImg = document.querySelector('.media-image-editor_debug__preview-container img');
+
+    // Get the data URI of the canvas image
+    var dataURI = window.imageEditor.canvasWorkspace.exportImageURI();
+
+    // Append the image element to the document
+    previewImg.src = dataURI;
+
+    //     In this example, myCanvas is the ID of the canvas element in the HTML document. The toDataURL method returns a data URI that represents the contents of the canvas as a PNG image. The data URI is assigned to the src attribute of a new image element, which is then appended to the document. This will display the canvas image on the page.
+    //
+    //         You can also use the toBlob method to export the canvas as a Blob object, which can be used for further processing or saving to a file. Here's an example:
+    //
+    //     javascript
+    //     Copy code
+    //     canvas.toBlob(function(blob) {
+    //         // Use the Blob object here
+    //     });
+}
+
+// DEBUG
+function onWorkSpaceUpdated(state) {
+    //const croppedImageObj = document.querySelector( '.media-image-editor_debug__preview-container img' );
+    //const croppedImageAtag = document.querySelector( '.media-image-editor_debug__preview-container a' );
+    //const previewImage = newImageEditorState.canvas.toDataURL('image/jpeg', 0.8 );
+    //croppedImageObj.src = previewImage;
+    //croppedImageObj.width = newImageEditorState.cropped.width;
+    //croppedImageObj.height = newImageEditorState.cropped.height;
+    //croppedImageAtag.href = previewImage;
+
+    var template = '\n        <li>\n            <var>App container dimensions</var>\n            <samp>\n                ' + state.appContainer.width + ' x ' + state.appContainer.height + '\n            </samp>\n        </li>\n        <li>\n            <var>Original image dimensions</var>\n            <samp>\n                ' + state.image.originalWidth + ' x ' + state.image.originalHeight + '\n            </samp>\n        </li>\n\t\t<li>\n\t\t\t<var>Scaled image dimensions</var>\n\t\t\t<samp>\n\t\t\t\t' + state.image.width + ' x ' + state.image.height + '\n\t\t\t</samp>\n\t\t</li>\n        <li>\n\t\t\t<var>Ratio to original image</var>\n\t\t\t<samp>' + state.image.ratio + '</samp>\n        </li>\n         <li>\n            <var>Image coordinates relative to window</var>\n            <samp>\n                left: ' + state.image.left + ', top:  ' + state.image.top + '\n            </samp>\n        </li>\n         <li>\n            <var>Crop container height and width</var>\n            <samp>\n                ' + state.cropContainer.width + ' x ' + state.cropContainer.height + '\n            </samp>\n        </li>\n         <li>\n            <var>Crop container coordinates relative to image</var>\n            <samp>\n                left: ' + state.cropContainer.relative.left + ', top:  ' + state.cropContainer.relative.top + ',\n                right: ' + state.cropContainer.relative.right + ', bottom:  ' + state.cropContainer.relative.bottom + '\n            </samp>\n        </li>\n    ';
+
+    document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
+    document.querySelector('.media-image-editor_debug-values ul').innerHTML = template;
+    exportEditedImage();
+}
 
 /***/ }),
 /* 3 */
@@ -490,7 +490,7 @@ var _rematrix = __webpack_require__(4);
 
 var Rematrix = _interopRequireWildcard(_rematrix);
 
-var _utils = __webpack_require__(1);
+var _utils = __webpack_require__(0);
 
 var _canvasWorkspace = __webpack_require__(5);
 
@@ -500,7 +500,7 @@ var _cropContainer = __webpack_require__(6);
 
 var _cropContainer2 = _interopRequireDefault(_cropContainer);
 
-var _constants = __webpack_require__(2);
+var _constants = __webpack_require__(1);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -706,6 +706,16 @@ var ImageEditor = function () {
 			var imageAspectRatio = (0, _utils.calculateAspectRatioFit)(this.imageObj.naturalWidth, this.imageObj.naturalHeight, this.appContainer.offsetWidth, this.appContainer.offsetHeight, this.state.image.rotated, 1);
 			var cropContainerState = this.cropContainer.getState();
 
+			//scaleFactor = new / old
+			var something = imageAspectRatio.width / this.state.image.originalWidth;
+			var widthScaleFactor = imageAspectRatio.width / this.state.image.width;
+			var heightScaleFactor = imageAspectRatio.height / this.state.image.height;
+			// To get the relative left position,
+			// we need to know where the relative left of the cropper is in relation to the original image. This
+			// will give us the percentage of the original image that the cropper is offset from the left.
+			var newCropRelativeLeft = imageAspectRatio.width * cropContainerState.relative.leftPercentageOfWidth;
+			var newCropRelativeTop = imageAspectRatio.height * cropContainerState.relative.topPercentageOfHeight;
+
 			// apply the initial dimensions to the image
 			this.state.image.width = imageAspectRatio.width;
 			this.state.image.height = imageAspectRatio.height;
@@ -732,10 +742,8 @@ var ImageEditor = function () {
 			var r2 = Rematrix.translateY(imageCenterTranslateY - this.state.image.originY);
 			var product = [transform, r1, r2].reduce(Rematrix.multiply);
 			this.imageObj.style.transform = Rematrix.toString(product);
-			this.state.image.originX = imageCenterTranslateX;
-			this.state.image.originY = imageCenterTranslateY;
-			this.state.image.left = appContainerCenterX - this.state.image.width / 2;
-			this.state.image.top = appContainerCenterY - this.state.image.height / 2;
+			var newImageLeft = appContainerCenterX - this.state.image.width / 2;
+			var newImageTop = appContainerCenterY - this.state.image.height / 2;
 
 			/*
    	Crop container:
@@ -745,17 +753,22 @@ var ImageEditor = function () {
 			// we're scaling the image based on the container dimensions
 			// we want to the crop container to fit the outerContainer, but be no bigger than the image
 
-			var cropContainerWidth = cropContainerState.initialized ? cropContainerState.width : this.state.image.width;
-			var cropContainerHeight = cropContainerState.initialized ? cropContainerState.height : this.state.image.height;
-			var cropContainerLeft = cropContainerState.initialized ? cropContainerState.left : this.state.image.left;
-			var cropContainerTop = cropContainerState.initialized ? cropContainerState.top : this.state.image.top;
+
+			var cropContainerWidth = cropContainerState.initialized ? cropContainerState.width * widthScaleFactor : this.state.image.width;
+			var cropContainerHeight = cropContainerState.initialized ? cropContainerState.height * widthScaleFactor : this.state.image.height;
+			var cropContainerLeft = cropContainerState.initialized ? newImageLeft + newCropRelativeLeft : newImageLeft;
+			var cropContainerTop = cropContainerState.initialized ? newImageTop + newCropRelativeTop : newImageTop;
+			// newImageLeft + ( cropContainerState.relative.left / ( cropContainerWidth / this.state.image.width ) )
+			this.state.image.originX = imageCenterTranslateX;
+			this.state.image.originY = imageCenterTranslateY;
+			this.state.image.left = newImageLeft;
+			this.state.image.top = newImageTop;
 
 			/*
    	The crop container should scale with the image. So we need to get the scale ratio of the image and apply it to the crop container dimensions and position.
    	For example, if the image is scaled to 50% of its original size, the crop container should be scaled to 50% of its original size.
    	Since the image is already scaled, depending on the window size, we need to know by how much the image has scaled
     */
-
 			this.cropContainer.update({
 				left: cropContainerLeft,
 				top: cropContainerTop,
@@ -783,10 +796,10 @@ var ImageEditor = function () {
 				imageObj: this.imageObj,
 				canvasWidth: this.state.appContainer.width,
 				canvasHeight: this.state.appContainer.height,
-				imageWidth: this.imageObj.naturalWidth,
-				imageHeight: this.imageObj.naturalHeight,
-				imageX: 0,
-				imageY: 0,
+				imageWidth: cropContainerWidth / imageAspectRatio.ratio,
+				imageHeight: cropContainerHeight / imageAspectRatio.ratio,
+				imageX: 0 + (cropContainerLeft - this.state.image.left) / imageAspectRatio.ratio,
+				imageY: 0 + (cropContainerTop - this.state.image.top) / imageAspectRatio.ratio,
 				drawWidth: cropContainerWidth,
 				drawHeight: cropContainerHeight,
 				drawX: cropContainerLeft,
@@ -1264,9 +1277,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _constants = __webpack_require__(2);
+var _constants = __webpack_require__(1);
 
-var _utils = __webpack_require__(1);
+var _utils = __webpack_require__(0);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1390,9 +1403,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utils = __webpack_require__(1);
+var _utils = __webpack_require__(0);
 
-var _constants = __webpack_require__(2);
+var _constants = __webpack_require__(1);
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -1426,11 +1439,20 @@ var CropContainer = function () {
 				bottom: 0,
 				left: 0
 			},
-			// current position of the crop rectangle
+			// current position of the crop rectangle relative to outer container
 			top: 0,
 			right: 0,
 			bottom: 0,
 			left: 0,
+			// current position relative to the image
+			relative: {
+				top: 0,
+				right: 0,
+				bottom: 0,
+				left: 0,
+				leftPercentageOfWidth: 0,
+				topPercentageOfHeight: 0
+			},
 			// current dimensions
 			width: 0,
 			height: 0,
@@ -1778,8 +1800,6 @@ var CropContainer = function () {
 			drawWidth = width;
 			drawHeight = height;
 
-			//console.log( 'imageX, imageY, imageWidth, imageHeight, drawX, drawY, drawWidth, drawHeight', imageX, imageY, imageWidth, imageHeight, drawX, drawY, drawWidth, drawHeight );
-
 			this.canvasWorkspace.drawImage({
 				imageObj: this.imageObj,
 				canvasWidth: this.appContainer.offsetWidth,
@@ -1796,6 +1816,7 @@ var CropContainer = function () {
 
 			this.state.left = left;
 			this.element.style.left = this.state.left + 'px';
+			this.state.relative.left = left - this.state.imageCoords.left;
 
 			this.state.width = width;
 			this.element.style.width = this.state.width + 'px';
@@ -1805,9 +1826,15 @@ var CropContainer = function () {
 
 			this.state.top = top;
 			this.element.style.top = this.state.top + 'px';
+			this.state.relative.top = top - this.state.imageCoords.top;
 
 			this.state.bottom = this.state.top + height;
 			this.state.right = this.state.left + width;
+			this.state.relative.bottom = this.state.relative.top + height;
+			this.state.relative.right = this.state.relative.left + width;
+			this.state.relative.leftPercentageOfWidth = this.state.relative.left / this.imageObj.width;
+			this.state.relative.topPercentageOfHeight = this.state.relative.top / this.imageObj.height;
+
 			this.cropActionTriggered = true;
 
 			if (_constants.DEBUG) {
